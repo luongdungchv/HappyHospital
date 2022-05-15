@@ -14,7 +14,7 @@ npm install
 
 Chạy file Main.java (Hiện đang sử dụng JDK 17)
 
-## Khởi động
+## Khởi động Client
 
 Chạy lệnh
 
