@@ -240,9 +240,10 @@ export default class HelloWorldScene extends Phaser.Scene {
          agents: [],
          autoAgvs: [],
       };
+      console.log("saving");
       for (let i of this.agents) {
-         if (!i.active) return;
-         if (!i.curSource) return;
+         if (!i.active) break;
+         if (!i.curSource) break;
          data.agents.push({
             x: i.curSource.x,
             y: i.curSource.y,
@@ -252,8 +253,8 @@ export default class HelloWorldScene extends Phaser.Scene {
          console.log(i.curSource);
       }
       for (let i of this.autoAgvs) {
-         if (!i.active) return;
-         if (!i.curSource) return;
+         if (!i.active) break;
+         if (!i.curSource) break;
          data.autoAgvs.push({
             x: i.curSource.x,
             y: i.curSource.y,
@@ -295,6 +296,9 @@ export default class HelloWorldScene extends Phaser.Scene {
                reader.onload = () => {
                   if (typeof reader?.result == "string") {
                      data = JSON.parse(reader?.result);
+                     let des = document.querySelector("#des");
+
+                     des.innerHTML = "";
 
                      this.agents.forEach((i) => i.eliminate());
                      this.agents = [];
@@ -313,10 +317,10 @@ export default class HelloWorldScene extends Phaser.Scene {
                         );
                      });
                      data.autoAgvs.forEach((i) => {
-                        this.autoAgvs.push(
-                           new AutoAgv(this, i.x, i.y, i.id, i.dest)
-                        );
+                        let item = new AutoAgv(this, i.x, i.y, i.id, i.dest);
+                        this.autoAgvs.push(item);
                      });
+
                      this.socket.send(`aa${this.agents.length}`);
 
                      // console.log(this.mapData);
@@ -425,6 +429,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       let collider = this.physics.add.collider(this.agv, this.noPathLayer);
 
       let spawnAutoAgvs = setInterval(() => {
+         this.autoAgvs = this.autoAgvs.filter((i) => i && i.active);
          if (this.autoAgvs.length >= 5) {
             //clearInterval(spawnAutoAgvs);
             return;

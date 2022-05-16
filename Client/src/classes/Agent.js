@@ -80,7 +80,7 @@ class Agent extends AIEntity {
    }
    recalculatePath(x, y, excludedPos) {
       let clonePos = [...this.scene.groundPos];
-
+      this.id == 24 && console.log(x, y);
       clonePos = clonePos.filter(
          (i) => i.x != excludedPos.x || i.y != excludedPos.y
          // (i.x != excludedPos.x || i.y != excludedPos.y + 1) &&
@@ -95,7 +95,8 @@ class Agent extends AIEntity {
          28,
          clonePos,
          { x: x, y: y },
-         this.scene.doorPos[this.destIndex]
+         this.scene.doorPos[this.destIndex],
+         this.id
       );
 
       if (!this.movePattern || this.movePattern.length == 0) {

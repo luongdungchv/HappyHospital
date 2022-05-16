@@ -76,18 +76,28 @@ const calPathAstar = (adjacentList, start, end) => {
       closedList.push(currentNode);
    }
 };
-const calPathAstarGrid = (width, height, movableCells, start, end) => {
+const calPathAstarGrid = (width, height, movableCells, start, end, id) => {
    const getNeighbor = (x, y) => {
-      let res = [
-         { x: x + 1, y: y + 1 },
-         { x: x, y: y + 1 },
-         { x: x + 1, y: y - 1 },
-         { x: x, y: y - 1 },
-         { x: x + 1, y: y },
-         { x: x - 1, y: y },
-         { x: x - 1, y: y - 1 },
-         { x: x - 1, y: y + 1 },
-      ];
+      let check = x == start.x && y == start.y;
+      let res = check
+         ? [
+              { x: x, y: y + 1 },
+              { x: x, y: y - 1 },
+              { x: x + 1, y: y },
+              { x: x - 1, y: y },
+           ]
+         : [
+              { x: x + 1, y: y + 1 },
+              { x: x, y: y + 1 },
+              { x: x + 1, y: y - 1 },
+              { x: x, y: y - 1 },
+              { x: x + 1, y: y },
+              { x: x - 1, y: y },
+              { x: x - 1, y: y - 1 },
+              { x: x - 1, y: y + 1 },
+           ];
+
+      start.x && y == start.y && id == 24 && console.log(start);
       return res.filter(
          (i) => i.x >= 0 && i.x < width && i.y >= 0 && i.y < height
       );

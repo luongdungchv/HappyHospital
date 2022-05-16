@@ -13,13 +13,13 @@ class AutoAgv extends AIEntity {
       this.scene = scene;
       this.pathLayer = scene.pathLayer;
       this.startTime = 0;
-      this.index = index;
+      this.index = index || Math.floor(Math.random() * 10);
 
       this.displayText = new Text(
          this.scene,
          this.x,
          this.y - this.height * 0.5,
-         `AI_${index}`,
+         `AI_${this.index}`,
          "16px",
          "#ff002b"
       );
@@ -101,7 +101,7 @@ class AutoAgv extends AIEntity {
          this.scene,
          this.destX * 32,
          this.destY * 32,
-         `DES_${this.index}`,
+         `des-${this.index}`,
          "16px",
          "#ff002b"
       );
@@ -109,6 +109,7 @@ class AutoAgv extends AIEntity {
 
    writeDeadline() {
       let des = document.querySelector("#des");
+      console.log("writing deadline");
       //des.innerHTML = des.innerHTML + "adsf";
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
