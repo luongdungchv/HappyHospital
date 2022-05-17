@@ -25,8 +25,6 @@ class AIEntity extends DynamicEntity {
       );
       this.randX = 0;
       this.randY = 0;
-
-      //this.movePattern = movePattern;
    }
    move() {
       let dest =
@@ -47,19 +45,16 @@ class AIEntity extends DynamicEntity {
 
       this.displayText.setPosition(this.x, this.y - this.height * 0.5);
       this.setVelocity(0, 0);
-
-      //let tiles = this.getTilesWithin();
+      if (this.stop === true) return;
 
       let x = Math.round(this.x / 32);
       let y = Math.round(this.y / 32);
-      // let x = this.curDest.x;
-      // let y = this.curDest.y;
+
       if (
          this.curDest &&
          Math.abs((this.curDest.x + this.randX) * 32 - this.x) < 1 &&
          Math.abs((this.curDest.y + this.randY) * 32 - this.y) < 1
       ) {
-         //this.setPosition(x * 32, y * 32);
          if (this.curSource)
             this.scene.setBusyGridState(
                this.curSource.x,
@@ -68,7 +63,6 @@ class AIEntity extends DynamicEntity {
             );
          this.curSource = this.curDest;
          this.curDest = this.movePattern.pop();
-         //console.log(this.name);
          if (!this.curDest) return;
 
          this.scene.setBusyGridState(this.curSource.x, this.curSource.y, this);
@@ -83,13 +77,11 @@ class AIEntity extends DynamicEntity {
          };
          this.randX = this.name == "agv" ? 0 : Math.random() * 0.4 - 0.2;
          this.randY = this.name == "agv" ? 0 : Math.random() * 0.4 - 0.2;
-         //console.log(logObj);
          this.id == 24 && console.log(this.curDest, this.id);
          this.setVelocity(0);
+
          return;
       } else if (!this.curDest) {
-         // if (!(x >= 47 && x <= 50)) this.changeDest(x, y);
-         // else this.changeDest(50, 13);
          if (this.name != "agv") {
             this.scene.setBusyGridState(
                this.curSource?.x,
@@ -104,16 +96,19 @@ class AIEntity extends DynamicEntity {
             return;
          }
          this.changeDest(x, y);
+         if (this.name == "agv") {
+            this.stop = true;
+            setTimeout(() => {
+               this.stop = false;
+            }, 4000);
+         }
       } else {
          if (
-            //this.name == "agv" &&
             this.scene.getBusyGridState(this.curDest.x, this.curDest.y) !=
                null &&
             this.scene.getBusyGridState(this.curDest.x, this.curDest.y) != this
          ) {
-            //this.id == 24 && console.log(this.curSource, this.id);
             if (this.name == "agv") {
-               //console.log({ src: this.curSource, dest: this.curDest });
                this.setVelocity(0, 0);
             }
 
@@ -140,9 +135,7 @@ class AIEntity extends DynamicEntity {
                   this.curSource?.y,
                   this.curDest
                );
-               //this.setVelocity(0, 0);
             }
-            //this.immobile = true;
             return;
          }
          if (

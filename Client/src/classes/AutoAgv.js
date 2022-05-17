@@ -30,7 +30,6 @@ class AutoAgv extends AIEntity {
       }
       this.destX = dest?.x;
       this.destY = dest?.y;
-      //dest? this.changeDest(x, y);
       dest ? this.initPath(x, y) : this.changeDest(x, y);
    }
    calculateLateness(finish, deadline) {
@@ -94,8 +93,6 @@ class AutoAgv extends AIEntity {
       this.scene.updateHarmfulness();
       this.startTime = performance.now() / 1000;
 
-      //console.log(this.scene.harmfulness);
-
       this.desText?.destroy();
       this.desText = new Text(
          this.scene,
@@ -110,7 +107,6 @@ class AutoAgv extends AIEntity {
    writeDeadline() {
       let des = document.querySelector("#des");
       console.log("writing deadline");
-      //des.innerHTML = des.innerHTML + "adsf";
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
       des.innerHTML =
@@ -119,13 +115,12 @@ class AutoAgv extends AIEntity {
          ": " +
          secondsToHMS(this.deadline) +
          " ± " +
-         "0" +
+         "4" +
          enter +
          des.innerHTML;
    }
    eraseDeadline() {
       let des = document.querySelector("#des");
-      //des.innerHTML = des.innerHTML + "adsf";
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
       let eraseText =
@@ -134,7 +129,7 @@ class AutoAgv extends AIEntity {
          ": " +
          secondsToHMS(this.deadline) +
          " ± " +
-         "0" +
+         "4" +
          enter;
       des.innerHTML = des.innerHTML.replace(eraseText, "");
    }

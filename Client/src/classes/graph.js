@@ -50,7 +50,6 @@ const calPathAstar = (adjacentList, start, end) => {
          }
       }
       let [x, y] = [currentNode.x, currentNode.y];
-      //console.log(`${x} ${y}`);
       if (!adjacentList[x]) {
          openList.splice(openList.indexOf(currentNode), 1);
          closedList.push(currentNode);
