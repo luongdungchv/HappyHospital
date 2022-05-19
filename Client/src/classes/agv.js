@@ -21,6 +21,9 @@ class Agv extends DynamicEntity {
       this.keyP = this.scene.input.keyboard.addKey("P");
       this.keyR = this.scene.input.keyboard.addKey("R");
 
+      this.curTile = { x: x, y: y };
+      scene.setBusyGridState(x, y, this);
+
       this.speed = 60;
 
       console.log(`dest: ${this.destX} ${this.destY}`);
@@ -63,7 +66,22 @@ class Agv extends DynamicEntity {
       r = true;
 
       let tiles = this.getTilesWithin();
+      console.log(tiles.length);
+      if (
+         tiles.length == 1 &&
+         (tiles[0].x != this.curTile.x || tiles[0].y != this.curTile.y)
+      ) {
+         this.scene.setBusyGridState(this.curTile.x, this.curTile.y, null);
+         this.curTile = { x: tiles[0].x, y: tiles[0].y };
+         this.scene.setBusyGridState(this.curTile.x, this.curTile.y, this);
+      }
       for (let i = 0; i < tiles.length; i++) {
+         if (
+            this.scene.getBusyGridState(tiles[i].x, tiles[i].y) &&
+            this.scene.getBusyGridState(tiles[i].x, tiles[i].y) != this
+         ) {
+            return;
+         }
          if (tiles[i].x == this.destX && tiles[i].y == this.destY) {
             this.desText?.destroy();
             this.changeDest();
