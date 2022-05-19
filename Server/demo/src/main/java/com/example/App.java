@@ -16,14 +16,19 @@ class MessageSchedule extends TimerTask {
     public static int maxAgent = 5;
     public static float spawnProb = 0.3f;
     private Session session;
+    private static int run = 0;
 
     public MessageSchedule(Session session) {
         this.session = session;
         i = 0;
+        run = 0;
     }
 
     public void run() {
-
+        if (run == 0) {
+            run = 1;
+            return;
+        }
         double rand = Math.random();
         if (rand < spawnProb) {
             try {

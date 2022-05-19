@@ -23,8 +23,6 @@ class Agent extends AIEntity {
          "#ffffff"
       );
       this.isPrior = false;
-
-      //this.movePattern = movePattern;
    }
    changeDest(x, y) {
       this.desText?.destroy();
@@ -41,7 +39,6 @@ class Agent extends AIEntity {
       ) {
          b = Math.floor(Math.random() * this.scene.doorPos.length);
       }
-      //let finalDest = {};
       this.finalDest = this.scene.doorPos[b];
 
       this.destIndex = b;
@@ -53,7 +50,6 @@ class Agent extends AIEntity {
          28,
          this.scene.groundPos,
          { x: x, y: y },
-         //this.scene.doorPos[b]
          this.finalDest
       );
       this.curDest = this.movePattern?.pop();
@@ -80,43 +76,29 @@ class Agent extends AIEntity {
    }
    recalculatePath(x, y, excludedPos) {
       let clonePos = [...this.scene.groundPos];
-
+      this.id == 24 && console.log(x, y);
       clonePos = clonePos.filter(
          (i) => i.x != excludedPos.x || i.y != excludedPos.y
-         // (i.x != excludedPos.x || i.y != excludedPos.y + 1) &&
-         // (i.x != excludedPos.x || i.y != excludedPos.y - 1)
       );
-      // console.log(clonePos);
-      // console.log(this.scene.groundPos);
-      // console.log(excludedPos);
-      //console.log(this.movePattern, this.id, excludedPos);
+
       this.movePattern = calPathAstarGrid(
          52,
          28,
          clonePos,
          { x: x, y: y },
-         this.scene.doorPos[this.destIndex]
+         this.scene.doorPos[this.destIndex],
+         this.id
       );
 
       if (!this.movePattern || this.movePattern.length == 0) {
          this.changeDest(x, y);
          return;
       }
-      //console.log(this.movePattern, this.id);
       this.movePattern.pop();
       this.curDest = this.movePattern.pop();
       this.id == 24 && console.log(x, y, this.curDest);
 
       this.scene.setBusyGridState(this.curDest.x, this.curDest.y, null);
-
-      //console.log({ a: this.curDest, b: excludedPos });
-      //console.log({ a: clonePos.length, b: this.scene.groundPos.length });
-      // console.log({
-      //    a: this.curDest,
-      //    b: this.movePattern,
-      //    c: excludedPos,
-      //    d: `${x} ${y}`,
-      // });
    }
 }
 export default Agent;

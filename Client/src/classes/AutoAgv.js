@@ -13,13 +13,13 @@ class AutoAgv extends AIEntity {
       this.scene = scene;
       this.pathLayer = scene.pathLayer;
       this.startTime = 0;
-      this.index = index;
+      this.index = index || Math.floor(Math.random() * 10);
 
       this.displayText = new Text(
          this.scene,
          this.x,
          this.y - this.height * 0.5,
-         `AI_${index}`,
+         `AI_${this.index}`,
          "16px",
          "#ff002b"
       );
@@ -30,7 +30,6 @@ class AutoAgv extends AIEntity {
       }
       this.destX = dest?.x;
       this.destY = dest?.y;
-      //dest? this.changeDest(x, y);
       dest ? this.initPath(x, y) : this.changeDest(x, y);
    }
    calculateLateness(finish, deadline) {
@@ -94,14 +93,12 @@ class AutoAgv extends AIEntity {
       this.scene.updateHarmfulness();
       this.startTime = performance.now() / 1000;
 
-      //console.log(this.scene.harmfulness);
-
       this.desText?.destroy();
       this.desText = new Text(
          this.scene,
          this.destX * 32,
          this.destY * 32,
-         `DES_${this.index}`,
+         `des-${this.index}`,
          "16px",
          "#ff002b"
       );
@@ -109,7 +106,7 @@ class AutoAgv extends AIEntity {
 
    writeDeadline() {
       let des = document.querySelector("#des");
-      //des.innerHTML = des.innerHTML + "adsf";
+      console.log("writing deadline");
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
       des.innerHTML =
@@ -118,13 +115,12 @@ class AutoAgv extends AIEntity {
          ": " +
          secondsToHMS(this.deadline) +
          " ± " +
-         "0" +
+         "4" +
          enter +
          des.innerHTML;
    }
    eraseDeadline() {
       let des = document.querySelector("#des");
-      //des.innerHTML = des.innerHTML + "adsf";
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
       let eraseText =
@@ -133,7 +129,7 @@ class AutoAgv extends AIEntity {
          ": " +
          secondsToHMS(this.deadline) +
          " ± " +
-         "0" +
+         "4" +
          enter;
       des.innerHTML = des.innerHTML.replace(eraseText, "");
    }

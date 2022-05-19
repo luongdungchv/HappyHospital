@@ -11,7 +11,6 @@ class DynamicEntity extends Physics.Arcade.Sprite {
       scene.add.existing(this);
       scene.physics.add.existing(this);
       this.scene = scene;
-      //this.setCollideWorldBounds(true);
       this.setSize(32, 32);
       this.setOrigin(0, 0);
    }

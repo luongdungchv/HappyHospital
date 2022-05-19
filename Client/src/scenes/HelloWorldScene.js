@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import Agv from "../classes/agv";
 import { Position } from "../classes/position";
-import { ValidDestination } from "../classes/Constants";
+import { secondsToHMS, ValidDestination } from "../classes/Constants";
 import { calPathAstar } from "../classes/graph";
 import Agent from "../classes/Agent";
 import { calPathAstarGrid } from "../classes/graph";
@@ -19,6 +19,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.elevatorPos = [];
       this.gatePos = [];
       this.maxAgents = 5;
+      this.elapse = 0;
 
       this.agents = [];
       this.autoAgvs = [];
@@ -72,28 +73,23 @@ export default class HelloWorldScene extends Phaser.Scene {
       if (!tileA.properties.direction) {
          if (this.checkTilesUndirection(tileA, tileB)) return true;
       } else {
-         // neu o dang xet co huong
          if (tileA.properties.direction == "top") {
             if (tileA.x == tileB.x && tileA.y == tileB.y + 1) {
-               /*&& tileA.properties.direction != "bottom"*/
                return true;
             }
          }
          if (tileA.properties.direction == "right") {
             if (tileA.x + 1 == tileB.x && tileA.y == tileB.y) {
-               /*&& tileA.properties.direction != "left"*/
                return true;
             }
          }
          if (tileA.properties.direction == "bottom") {
             if (tileA.x == tileB.x && tileA.y + 1 == tileB.y) {
-               /*&& tileA.properties.direction != "top") {*/
                return true;
             }
          }
          if (tileA.properties.direction == "left") {
             if (tileA.x == tileB.x + 1 && tileA.y == tileB.y) {
-               /*&& tileA.properties.direction != "right") {*/
                return true;
             }
          }
@@ -188,13 +184,12 @@ export default class HelloWorldScene extends Phaser.Scene {
    }
    createUI() {
       let setNumAgentsDOM = this.add
-         .dom(1770, 220)
+         .dom(1790, 220)
          .createFromCache("setNumAgentForm");
       setNumAgentsDOM.addListener("click");
       setNumAgentsDOM.setPerspective(800);
       setNumAgentsDOM.on("click", (t) => {
          if (t.target.id === "submit") {
-            // //var input = setNumAgentsDOM.getChildByName("numOfAgents")
             let numAgent = parseInt(
                setNumAgentsDOM.getChildByName("numOfAgents").value
             );
@@ -214,7 +209,7 @@ export default class HelloWorldScene extends Phaser.Scene {
          }
       });
 
-      this.timeTable = this.add.text(window.innerWidth - 1910, 870, "", {
+      this.timeTable = this.add.text(window.innerWidth - 200, 870, "", {
          color: "#D8202A",
          fontSize: "28px",
          fontStyle: "bold",
@@ -222,9 +217,8 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.harmfulnessTable = this.add.text(
          window.innerWidth - 200,
          340,
-         `${this.harmfulness}`,
+         `H.ness: ${this.harmfulness}`,
          {
-            //backgroundColor: "#eee",
             padding: { bottom: 5, top: 5, left: 10, right: 10 },
             color: "white",
             fontSize: "24px",
@@ -233,16 +227,28 @@ export default class HelloWorldScene extends Phaser.Scene {
       );
    }
    updateHarmfulness() {
-      this.harmfulnessTable.text = `${Math.floor(this.harmfulness)}`;
+      this.harmfulnessTable.text = `H.ness: ${Math.floor(this.harmfulness)}`;
    }
    saveMap() {
       let data = {
+         agv: {},
          agents: [],
          autoAgvs: [],
       };
+      console.log("saving");
+      data.agv = {
+         start: {
+            x: Math.round(this.agv.x / 32),
+            y: Math.round(this.agv.y / 32),
+         },
+         dest: {
+            x: this.agv.destX,
+            y: this.agv.destY,
+         },
+      };
       for (let i of this.agents) {
-         if (!i.active) return;
-         if (!i.curSource) return;
+         if (!i.active) break;
+         if (!i.curSource) break;
          data.agents.push({
             x: i.curSource.x,
             y: i.curSource.y,
@@ -252,8 +258,8 @@ export default class HelloWorldScene extends Phaser.Scene {
          console.log(i.curSource);
       }
       for (let i of this.autoAgvs) {
-         if (!i.active) return;
-         if (!i.curSource) return;
+         if (!i.active) break;
+         if (!i.curSource) break;
          data.autoAgvs.push({
             x: i.curSource.x,
             y: i.curSource.y,
@@ -264,11 +270,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       }
       let jsonData = JSON.stringify(data);
       const e = document.createElement("a");
-      e.setAttribute(
-         "href",
-         // "data:text/plain;charset=utf-8," + encodeURIComponent(text)
-         "data:text/plain;charset=utf-8," + jsonData
-      );
+      e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
       e.setAttribute("download", "save.json");
       e.style.display = "none";
       document.body.appendChild(e);
@@ -277,10 +279,10 @@ export default class HelloWorldScene extends Phaser.Scene {
    }
    loadMap() {
       let data = {
+         agv: {},
          agents: [],
          autoAgvs: [],
       };
-      //this.scene.restart();
 
       const e = document.createElement("input");
       const reader = new FileReader();
@@ -295,11 +297,23 @@ export default class HelloWorldScene extends Phaser.Scene {
                reader.onload = () => {
                   if (typeof reader?.result == "string") {
                      data = JSON.parse(reader?.result);
+                     let des = document.querySelector("#des");
+
+                     des.innerHTML = "";
 
                      this.agents.forEach((i) => i.eliminate());
                      this.agents = [];
                      this.autoAgvs.forEach((i) => i.eliminate());
                      this.autoAgvs = [];
+                     this.agv.eliminate();
+                     this.agv = new Agv(
+                        this,
+                        data.agv.start.x || 1,
+                        data.agv.start.y || 14,
+
+                        this.pathLayer,
+                        data.agv.dest || { x: 0, y: 0 }
+                     );
 
                      this.groundPos.forEach((i) => {
                         let [x, y] = [i.x, i.y];
@@ -313,14 +327,11 @@ export default class HelloWorldScene extends Phaser.Scene {
                         );
                      });
                      data.autoAgvs.forEach((i) => {
-                        this.autoAgvs.push(
-                           new AutoAgv(this, i.x, i.y, i.id, i.dest)
-                        );
+                        let item = new AutoAgv(this, i.x, i.y, i.id, i.dest);
+                        this.autoAgvs.push(item);
                      });
-                     this.socket.send(`aa${this.agents.length}`);
 
-                     // console.log(this.mapData);
-                     //alert("Đã tải map thành công!");
+                     this.socket.send(`aa${this.agents.length}`);
                   }
                };
                reader.readAsText(input.files[0]);
@@ -375,14 +386,22 @@ export default class HelloWorldScene extends Phaser.Scene {
       socket.addEventListener("message", (event) => {
          console.log("Message from server ", event.data);
          if (event.data == "Generate") {
-            // if (this.agents.length >= this.maxAgents) {
-            //    return;
-            // }
             let r = Math.floor(Math.random() * this.doorPos.length);
             let pos = this.doorPos[r];
             this.agents.push(new Agent(this, pos.x, pos.y));
          }
       });
+   }
+   startTimer() {
+      this.timeText = this.add.text(window.innerWidth - 190, 290, "00:00:00", {
+         color: "#D8202A",
+         fontSize: "28px",
+         fontStyle: "bold",
+      });
+      setInterval(() => {
+         this.elapse++;
+         this.timeText?.setText(secondsToHMS(this.elapse));
+      }, 1000);
    }
 
    create() {
@@ -393,10 +412,11 @@ export default class HelloWorldScene extends Phaser.Scene {
       });
       console.log(this.agents);
 
-      this.desDom = this.add.dom(1770, 600).createFromCache("des");
+      this.desDom = this.add.dom(1790, 600).createFromCache("des");
       this.desDom.setPerspective(800);
 
       this.createUI();
+      this.startTimer();
 
       let tileset = map.addTilesetImage("hospital", "tiles");
       this.noPathLayer = map.createLayer("nopath", tileset, 0, 0);
@@ -422,11 +442,9 @@ export default class HelloWorldScene extends Phaser.Scene {
 
       this.agv = new Agv(this, 1, 14, this.pathLayer);
 
-      let collider = this.physics.add.collider(this.agv, this.noPathLayer);
-
       let spawnAutoAgvs = setInterval(() => {
+         this.autoAgvs = this.autoAgvs.filter((i) => i && i.active);
          if (this.autoAgvs.length >= 5) {
-            //clearInterval(spawnAutoAgvs);
             return;
          }
          this.autoAgvs.push(new AutoAgv(this, 1, 13, this.autoAgvs.length));

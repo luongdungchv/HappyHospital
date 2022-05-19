@@ -5,14 +5,29 @@ import DynamicEntity from "./DynamicEntity";
 import { ValidDestination } from "./Constants";
 
 class Agv extends DynamicEntity {
-   constructor(scene, x, y, pathLayer) {
+   constructor(scene, x, y, pathLayer, dest) {
       super(scene, x, y, "agv");
+
+      scene.physics.add.collider(this, scene.noPathLayer);
 
       this.scene = scene;
 
       this.pathLayer = pathLayer;
 
-      this.changeDest();
+      if (dest) {
+         this.destX = dest.x;
+         this.destY = dest.y;
+         this.desText = new Text(
+            this.scene,
+            this.destX * 32,
+            this.destY * 32,
+            "DES",
+            "16px",
+            "#00FF00"
+         );
+      } else {
+         this.changeDest();
+      }
 
       this.keyW = this.scene.input.keyboard.addKey("W");
       this.keyA = this.scene.input.keyboard.addKey("A");
@@ -116,35 +131,25 @@ class Agv extends DynamicEntity {
          }
       }
 
-      // console.log("t: ", t, " ", "r: ", r, " ", "b: ", b, " ", "l: ", l);
-
       if (this.keyW?.isDown) {
-         // console.log("x: ", this.x);
-         // console.log("y: ", this.y);
          if (t) {
             this.body.velocity.y = -this.speed;
          }
       }
 
       if (this.keyA?.isDown) {
-         // console.log("x: ", this.x);
-         // console.log("y: ", this.y);
          if (l) {
             this.body.velocity.x = -this.speed;
          }
       }
 
       if (this.keyS?.isDown) {
-         // console.log("x: ", this.x);
-         // console.log("y: ", this.y);
          if (b) {
             this.body.velocity.y = this.speed;
          }
       }
 
       if (this.keyD?.isDown) {
-         // console.log("x: ", this.x);
-         // console.log("y: ", this.y);
          if (r) {
             this.body.velocity.x = this.speed;
          }
