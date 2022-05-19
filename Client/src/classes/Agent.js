@@ -26,7 +26,6 @@ class Agent extends AIEntity {
    }
    changeDest(x, y) {
       this.desText?.destroy();
-      console.log("agent changeDest");
       let b = Math.floor(Math.random() * this.scene.doorPos.length);
 
       while (

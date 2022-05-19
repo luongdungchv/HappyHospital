@@ -81,7 +81,6 @@ class Agv extends DynamicEntity {
       r = true;
 
       let tiles = this.getTilesWithin();
-      console.log(tiles.length);
       if (
          tiles.length == 1 &&
          (tiles[0].x != this.curTile.x || tiles[0].y != this.curTile.y)

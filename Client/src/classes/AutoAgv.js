@@ -106,7 +106,6 @@ class AutoAgv extends AIEntity {
 
    writeDeadline() {
       let des = document.querySelector("#des");
-      console.log("writing deadline");
       var enter = "";
       if (des.innerHTML.length > 0) enter = "\n";
       des.innerHTML =

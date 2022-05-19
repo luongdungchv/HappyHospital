@@ -19,6 +19,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.elevatorPos = [];
       this.gatePos = [];
       this.maxAgents = 5;
+      this.prob = 0.3;
       this.elapse = 0;
 
       this.agents = [];
@@ -202,7 +203,7 @@ export default class HelloWorldScene extends Phaser.Scene {
                this.socket.send(`ma${numAgent}`);
             }
             if (!isNaN(spawnProb) && spawnProb > 0) {
-               this.maxAgents = numAgent;
+               this.prob = spawnProb;
                this.socket.send(`pr${spawnProb}`);
             }
             console.log(numAgent);
@@ -234,6 +235,8 @@ export default class HelloWorldScene extends Phaser.Scene {
          agv: {},
          agents: [],
          autoAgvs: [],
+         maxAgents: 5,
+         spawnProb: 0.3,
       };
       console.log("saving");
       data.agv = {
@@ -246,16 +249,20 @@ export default class HelloWorldScene extends Phaser.Scene {
             y: this.agv.destY,
          },
       };
-      for (let i of this.agents) {
-         if (!i.active) break;
-         if (!i.curSource) break;
+      console.log(this.agents.length);
+      let c = 0;
+      for (let j = 0; j < this.agents.length; j++) {
+         //console.log("loop");
+         let i = this.agents[j];
+         if (!i) continue;
+         if (!i.active) continue;
+         if (!i.curSource) continue;
          data.agents.push({
             x: i.curSource.x,
             y: i.curSource.y,
             index: i.destIndex,
             id: i.id,
          });
-         console.log(i.curSource);
       }
       for (let i of this.autoAgvs) {
          if (!i.active) break;
@@ -268,6 +275,8 @@ export default class HelloWorldScene extends Phaser.Scene {
          });
          console.log(i.curSource);
       }
+      data.maxAgents = this.maxAgents;
+      data.spawnProb = this.prob;
       let jsonData = JSON.stringify(data);
       const e = document.createElement("a");
       e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
@@ -308,11 +317,11 @@ export default class HelloWorldScene extends Phaser.Scene {
                      this.agv.eliminate();
                      this.agv = new Agv(
                         this,
-                        data.agv.start.x || 1,
-                        data.agv.start.y || 14,
+                        data.agv?.start?.x || 1,
+                        data.agv?.start?.y || 14,
 
                         this.pathLayer,
-                        data.agv.dest || { x: 0, y: 0 }
+                        data.agv?.dest || { x: 0, y: 0 }
                      );
 
                      this.groundPos.forEach((i) => {
@@ -332,6 +341,9 @@ export default class HelloWorldScene extends Phaser.Scene {
                      });
 
                      this.socket.send(`aa${this.agents.length}`);
+                     console.log(data.maxAgents);
+                     data.maxAgents && this.socket.send(`ma${data.maxAgents}`);
+                     data.spawnProb && this.socket.send(`pr${data.spawnProb}`);
                   }
                };
                reader.readAsText(input.files[0]);
