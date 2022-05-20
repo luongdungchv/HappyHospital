@@ -37,6 +37,9 @@ class AIEntity extends DynamicEntity {
       this.scene.physics.moveTo(this, dest.x * 32, dest.y * 32, this.speed);
    }
    recalculatePath(x, y, excludedPos) {}
+   eleminate() {
+      super.eliminate();
+   }
    update() {
       if (!this.active) {
          delete this;

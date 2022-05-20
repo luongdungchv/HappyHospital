@@ -26,6 +26,9 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.autoAgvs = [];
       this.busyGrid = [[]];
       this.harmfulness = 0;
+
+      this.autoAgvIds = {};
+      this.agentIds = {};
    }
    setBusyGridState(x, y, state) {
       if (!x || !y) return;
@@ -459,7 +462,7 @@ export default class HelloWorldScene extends Phaser.Scene {
          if (this.autoAgvs.length >= 5) {
             return;
          }
-         this.autoAgvs.push(new AutoAgv(this, 1, 13, this.autoAgvs.length));
+         this.autoAgvs.push(new AutoAgv(this, 1, 13));
       }, 5000);
       this.addSaveLoadBtn();
       this.establishSocket();

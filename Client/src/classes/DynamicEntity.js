@@ -21,6 +21,7 @@ class DynamicEntity extends Physics.Arcade.Sprite {
       this.desText?.destroy();
       this.displayText?.destroy();
       this?.destroy();
+      //this.scene?.autoAgvIds[this.id]
    }
 }
 export default DynamicEntity;

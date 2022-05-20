@@ -13,8 +13,17 @@ class AutoAgv extends AIEntity {
       this.scene = scene;
       this.pathLayer = scene.pathLayer;
       this.startTime = 0;
-      this.index = index || Math.floor(Math.random() * 10);
-
+      //this.index = index || Math.floor(Math.random() * 10);
+      if (index) this.index = index;
+      else {
+         let newId = Math.floor(Math.random() * 10);
+         while (scene.autoAgvIds[newId]) {
+            newId = Math.floor(Math.random() * 10);
+         }
+         this.index = newId;
+         console.log(scene.autoAgvIds);
+         scene.autoAgvIds[newId] = true;
+      }
       this.displayText = new Text(
          this.scene,
          this.x,
@@ -31,6 +40,10 @@ class AutoAgv extends AIEntity {
       this.destX = dest?.x;
       this.destY = dest?.y;
       dest ? this.initPath(x, y) : this.changeDest(x, y);
+   }
+   eliminate() {
+      super.eliminate();
+      delete this.scene.autoAgvIds[this.index];
    }
    calculateLateness(finish, deadline) {
       let diff = Math.max(finish - deadline, deadline - finish);
@@ -84,8 +97,8 @@ class AutoAgv extends AIEntity {
       this.curDest = this.movePattern?.pop();
       this.eraseDeadline();
       this.deadline = Math.floor(
-         Math.sqrt((this.destX - x) ** 2 * 64 + (this.destY - y) ** 2 * 64) *
-            0.085
+         (Math.abs(this.destX - x) + Math.abs(this.destY - y)) *
+            (32 / this.speed)
       );
       this.writeDeadline();
       let finish = performance.now() / 1000 - this.startTime;
@@ -106,8 +119,8 @@ class AutoAgv extends AIEntity {
 
    writeDeadline() {
       let des = document.querySelector("#des");
-      var enter = "";
-      if (des.innerHTML.length > 0) enter = "\n";
+      var enter = "\n";
+      //if (des.innerHTML.length > 0) enter = "\n";
       des.innerHTML =
          "DES_" +
          this.index +
@@ -120,8 +133,8 @@ class AutoAgv extends AIEntity {
    }
    eraseDeadline() {
       let des = document.querySelector("#des");
-      var enter = "";
-      if (des.innerHTML.length > 0) enter = "\n";
+      var enter = "\n";
+      //if (des.innerHTML.length > 0) enter = "\n";
       let eraseText =
          "DES_" +
          this.index +
@@ -130,7 +143,9 @@ class AutoAgv extends AIEntity {
          " ± " +
          "4" +
          enter;
-      des.innerHTML = des.innerHTML.replace(eraseText, "");
+      console.log(eraseText, des.innerHTML);
+      console.log(des.innerHTML.toString().includes(eraseText));
+      des.innerHTML = des.innerHTML.toString().replace(eraseText, "");
    }
    getTilesWithin() {
       return this.pathLayer.getTilesWithinWorldXY(this.x, this.y, 31, 31);
