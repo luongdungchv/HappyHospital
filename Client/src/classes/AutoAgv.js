@@ -55,7 +55,9 @@ class AutoAgv extends AIEntity {
       }
       this.desText?.destroy();
       this.displayText?.destroy();
+
       this?.destroy();
+      delete this;
    }
    calculateLateness(finish, deadline) {
       let diff = Math.max(finish - deadline, deadline - finish);

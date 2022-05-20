@@ -46,6 +46,7 @@ class Agent extends AIEntity {
       this.desText?.destroy();
       this.displayText?.destroy();
       this?.destroy();
+      delete this;
    }
    changeDest(x, y) {
       this.desText?.destroy();
