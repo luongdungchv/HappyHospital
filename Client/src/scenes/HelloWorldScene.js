@@ -318,6 +318,8 @@ export default class HelloWorldScene extends Phaser.Scene {
                      this.autoAgvs.forEach((i) => i.eliminate());
                      this.autoAgvs = [];
                      this.agv.eliminate();
+                     this.agentIds = {};
+                     this.autoAgvIds = {};
                      this.agv = new Agv(
                         this,
                         data.agv?.start?.x || 1,

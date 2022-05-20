@@ -13,15 +13,18 @@ class Agent extends AIEntity {
       this.scene = scene;
       this.destIndex = null;
       //id ? (this.id = id) : (this.id = Math.floor(Math.random() * 100));
-      if (id) this.id = id;
-      else {
-         let newId = Math.floor(Math.random() * 10);
+      if (id) {
+         scene.agentIds[id] = true;
+         this.id = id;
+      } else {
+         let newId = Math.floor(Math.random() * 100);
          while (scene.agentIds[newId]) {
-            newId = Math.floor(Math.random() * 10);
+            newId = Math.floor(Math.random() * 100);
          }
          this.id = newId;
          scene.agentIds[newId] = true;
       }
+
       destIndex ? this.initDest(x, y, destIndex) : this.changeDest(x, y);
       this.displayText = new Text(
          this.scene,
@@ -34,8 +37,15 @@ class Agent extends AIEntity {
       this.isPrior = false;
    }
    eliminate() {
-      super.eleminate();
-      delete this.scene.agentIds[this.id];
+      console.log(this.scene);
+      if (this.scene) {
+         console.log(this.scene.agentIds);
+
+         this.scene.agentIds[this.id] = false;
+      }
+      this.desText?.destroy();
+      this.displayText?.destroy();
+      this?.destroy();
    }
    changeDest(x, y) {
       this.desText?.destroy();

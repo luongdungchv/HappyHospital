@@ -14,8 +14,10 @@ class AutoAgv extends AIEntity {
       this.pathLayer = scene.pathLayer;
       this.startTime = 0;
       //this.index = index || Math.floor(Math.random() * 10);
-      if (index) this.index = index;
-      else {
+      if (index) {
+         this.index = index;
+         scene.autoAgvIds[index] = true;
+      } else {
          let newId = Math.floor(Math.random() * 10);
          while (scene.autoAgvIds[newId]) {
             newId = Math.floor(Math.random() * 10);
@@ -42,8 +44,18 @@ class AutoAgv extends AIEntity {
       dest ? this.initPath(x, y) : this.changeDest(x, y);
    }
    eliminate() {
-      super.eliminate();
-      delete this.scene.autoAgvIds[this.index];
+      if (this.scene) {
+         delete this.scene.autoAgvIds[this.index];
+         this.scene.setBusyGridState(
+            this.curSource?.x,
+            this.curSource?.y,
+            null
+         );
+         this.eraseDeadline();
+      }
+      this.desText?.destroy();
+      this.displayText?.destroy();
+      this?.destroy();
    }
    calculateLateness(finish, deadline) {
       let diff = Math.max(finish - deadline, deadline - finish);
@@ -79,15 +91,7 @@ class AutoAgv extends AIEntity {
             { x: 50, y: 13 }
          );
          if (!this.movePattern) {
-            this.desText?.destroy();
-            this.displayText?.destroy();
-            this.scene.setBusyGridState(
-               this.curSource?.x,
-               this.curSource?.y,
-               null
-            );
-            this.eraseDeadline();
-            this.destroy();
+            this.eliminate();
 
             return;
          }
