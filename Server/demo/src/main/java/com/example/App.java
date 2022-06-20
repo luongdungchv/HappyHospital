@@ -10,6 +10,10 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.nio.file.*;
+import com.example.Classes.*;
+import com.example.Classes.Models.Model;
+import com.fasterxml.jackson.databind.*;
 
 class MessageSchedule extends TimerTask {
     public static int i = 0;
@@ -52,41 +56,27 @@ public class App {
     // private static final Logger LOGGER =
     // Logger.getLogger(ToUpperWebsocket.class);
 
-    private TimerTask task;
-    private Timer timer;
+    private static Session socketSession;
+
+    public static void SendText(String text) throws IOException {
+        socketSession.getBasicRemote().sendText(text);
+    }
 
     @OnOpen
-    public void onOpen(Session session) {
-        System.out.println(String.format("WebSocket opened: %s", session.getId()));
+    public void onOpen(Session session) throws IOException {
+        socketSession = session;
+        Game game = Game.createInstance();
+        game.socketSession = session;
+        System.out.println("Session started");
 
-        timer = new Timer();
-        task = new MessageSchedule(session);
-        timer.schedule(task, 0, 2000);
     }
 
     @OnMessage
     public void onMessage(String txt, Session session) throws IOException {
-        System.out.println(String.format("Message received: %s", txt));
-        String s = txt.substring(2, txt.length());
-
-        if (txt.contains("ma")) {
-            int newMaxAgent = Integer.parseInt(s);
-            MessageSchedule.maxAgent = newMaxAgent;
-        }
-        if (txt.contains("pr")) {
-            float newSpawnProb = Float.parseFloat(s);
-            System.out.println(newSpawnProb);
-            MessageSchedule.spawnProb = newSpawnProb;
-        }
-        if (txt.contains("rm")) {
-            MessageSchedule.i--;
-            System.out.println(MessageSchedule.i);
-        }
-        if (txt.contains("aa")) {
-            int newAgentAmount = Integer.parseInt(s);
-            MessageSchedule.i = newAgentAmount;
-            System.out.println(MessageSchedule.i);
-        }
+        System.out.println(txt);
+        // int index = txt.indexOf("_");
+        // String cmd = txt.substring(0, index);
+        // String arg = txt.substring(index);
         // session.getBasicRemote().sendText(txt.toUpperCase());
     }
 
@@ -94,12 +84,13 @@ public class App {
     public void onClose(CloseReason reason, Session session) {
         System.out.println(
                 String.format("Closing a WebSocket (%s) due to %s", session.getId(), reason.getReasonPhrase()));
-        timer.cancel();
+        // timer.cancel();
     }
 
     @OnError
     public void onError(Session session, Throwable t) {
         System.out
                 .println(String.format("Error in WebSocket session %s%n", session == null ? "null" : session.getId()));
+        System.out.println(t);
     }
 }

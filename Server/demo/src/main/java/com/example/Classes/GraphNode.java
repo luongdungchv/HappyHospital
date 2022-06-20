@@ -14,4 +14,8 @@ public class GraphNode {
         this.f = g + h;
         this.prev = prev;
     }
+
+    public GraphNode(Pos pos) {
+        this.pos = pos;
+    }
 }

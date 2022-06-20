@@ -4,28 +4,81 @@ import com.example.App;
 import com.example.Game;
 import java.util.List;
 import java.util.Stack;
+import java.util.Timer;
 import java.util.TimerTask;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class AutoAgv extends AIEntity {
     public Stack<GraphNode> movePath;
+    public Pos finalDest;
 
     public AutoAgv(int x, int y) {
+
         this.curSrc = new Pos(x, y);
-        List<Pos> pathPos = Game.getInstance().pathPos;
-        int randomIndex = (int) Math.floor(Math.random() * pathPos.size());
-        while (!Utils.ValidDest(this.curSrc, pathPos.get(randomIndex))) {
-            randomIndex = (int) Math.floor(Math.random() * pathPos.size());
+
+        int id = (int) Math.floor(Math.random() * 9);
+        while (Game.getInstance().GetAtAgvIdState(id)) {
+            id = (int) Math.floor(Math.random() * 10);
         }
-        this.curDest = pathPos.get(randomIndex);
+        Game.getInstance().SetAtAgvIdState(id, true);
+        this.id = String.format("atagv%d", id);
+        // System.out.println("atagv created " + this.id);
+        Game.getInstance().AddAtAgv(this.id, this);
+        try {
+            App.SendText("spawn atagv " + this.id);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // System.out.println("hahaha");
+        }
+        CalculateRandomPath();
+
+        Timer timer = new Timer();
+        TimerTask task = new MoveSchedule();
+        timer.schedule(task, 0, 500);
+
+        // this.curDest = pathPos[randomIndex];
     }
 
-    public AutoAgv(int x, int y, int x1, int y1, int id) {
+    public AutoAgv(int x, int y, int x1, int y1, String id) {
         this.curSrc = new Pos(x, y);
         this.movePath = CalculatePath(curSrc, new Pos(x1, y1));
         this.curDest = movePath.peek().pos;
         this.id = id;
+        this.finalDest = new Pos(x1, y1);
+
+        try {
+            App.SendText("spawn atagv " + this.id);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // System.out.println("hahaha");
+        }
+
+        Timer timer = new Timer();
+        TimerTask task = new MoveSchedule();
+        timer.schedule(task, 0, 500);
+    }
+
+    private void CalculateRandomPath() {
+        Pos[] pathPos = Game.getInstance().pathPos;
+        int randomIndex = (int) Math.floor(Math.random() * pathPos.length);
+
+        System.out.println("cal random");
+
+        while (!Utils.ValidDest(this.curSrc, pathPos[randomIndex])) {
+            randomIndex = (int) Math.floor(Math.random() * pathPos.length);
+        }
+        this.finalDest = pathPos[randomIndex];
+
+        System.out.println(String.format("finalDest %d %d", finalDest.x,
+                finalDest.y));
+        this.movePath = CalculatePath(curSrc, finalDest);
+        if (movePath != null) {
+            this.curDest = movePath.peek().pos;
+        }
+
     }
 
     public Stack<GraphNode> CalculatePath(Pos start, Pos end) {
@@ -42,24 +95,41 @@ public class AutoAgv extends AIEntity {
                     smallestF = i.f;
                 }
             }
+            if (curNode.pos.x >= 50 || curNode.pos.y >= 27) {
+                open.remove(curNode);
+                continue;
+            }
+            Pos[] listPos = game.adjacentList[curNode.pos.x][curNode.pos.y];
             for (Pos i : game.adjacentList[curNode.pos.x][curNode.pos.y]) {
 
                 boolean canContinue = false;
                 for (GraphNode node : close) {
-                    if (node.pos.x == i.x && node.pos.y == i.y)
+                    if (node.pos.x == i.x && node.pos.y == i.y) {
                         canContinue = true;
+                        break;
+                    }
                 }
-                if (canContinue)
+                for (GraphNode node : open) {
+                    if (node.pos.x == i.x && node.pos.y == i.y) {
+                        canContinue = true;
+                        break;
+                    }
+                }
+                if (canContinue) {
+                    // System.out.println("continue");
                     continue;
+                }
                 int g = curNode.g + 1;
-                int h = Math.abs(end.x - start.x) + Math.abs(end.y - start.y);
+                int h = Math.abs(end.x - i.x) + Math.abs(end.y - i.y);
                 if (h == 0) {
                     Stack<GraphNode> path = new Stack<GraphNode>();
                     // path.push(curNode);
+                    path.push(new GraphNode(i.x, i.y, g, h, curNode));
                     while (curNode != null) {
                         path.push(curNode);
                         curNode = curNode.prev;
                     }
+
                     movePath = path;
                     return path;
                 }
@@ -72,18 +142,60 @@ public class AutoAgv extends AIEntity {
     }
 
     class MoveSchedule extends TimerTask {
+
         public void run() {
-            GraphNode moveNode = movePath.pop();
-            GraphNode nextNode = movePath.peek();
+            GraphNode nextNode = null;
+            GraphNode moveNode = null;
+            Game game = Game.getInstance();
+            try {
+                moveNode = movePath.pop();
+            } catch (Exception e) {
+                CalculateRandomPath();
+
+                if (movePath == null || movePath.size() == 0) {
+                    System.out.println("movePath null");
+                    game.SetCellState(curSrc.x, curSrc.y, null);
+                    game.SetCellState(curDest.x, curDest.y, null);
+                    game.SetAtAgvIdState(GetIdNum(), false);
+                    game.RemoveAtAgv(id);
+                    try {
+                        App.SendText(String.format("atagv %s el", id));
+                    } catch (IOException e1) {
+                        // TODO Auto-generated catch block
+                        e1.printStackTrace();
+                    }
+                    this.cancel();
+                }
+                return;
+            }
+
+            try {
+                nextNode = movePath.peek();
+
+            } catch (Exception e) {
+                nextNode = new GraphNode(finalDest);
+            }
+
+            game.SetCellState(curSrc.x, curSrc.y, null);
             curSrc = moveNode.pos;
+            game.SetCellState(curSrc.x, curSrc.y, id);
             curDest = nextNode.pos;
-            String msg = String.format("atagv pos %d %d %d %d", curSrc.x, curSrc.y, curDest.x, curDest.y);
+            String curDestState = game.GetCellState(curDest.x, curDest.y);
+            // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
+            // curDestState));
+            String msg = String.format("atagv %s pos %d %d %d %d", id, curSrc.x, curSrc.y, curDest.x, curDest.y);
             try {
                 App.SendText(msg);
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
+                movePath.push(moveNode);
+                return;
+            }
+            game.SetCellState(curDest.x, curDest.y, id);
+
         }
     }
 

@@ -18,3 +18,11 @@ export function secondsToHMS(seconds) {
    var sDisplay = s >= 10 ? s : "0" + s;
    return hDisplay + ":" + mDisplay + ":" + sDisplay;
 }
+export const lerp = (start, end, t) => {
+   let dir = {
+      x: start.x + (end.x - start.x) * t,
+      y: start.y + (end.y - start.y) * t,
+   };
+   //console.log(t, dir, start, end);
+   return dir;
+};

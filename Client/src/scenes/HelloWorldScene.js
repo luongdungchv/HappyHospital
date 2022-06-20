@@ -8,6 +8,9 @@ import { calPathAstarGrid } from "../classes/graph";
 import DynamicEntity from "../classes/DynamicEntity";
 import AutoAgv from "../classes/AutoAgv";
 import FullWindowRectangle from "phaser3-rex-plugins/plugins/fullwindowrectangle";
+import AutoAgvServer from "../classes/AutoAgvProjection";
+import AgentServer from "../classes/AgentServer";
+import ServerEntity from "../classes/ServerEntity";
 
 export default class HelloWorldScene extends Phaser.Scene {
    constructor() {
@@ -29,6 +32,9 @@ export default class HelloWorldScene extends Phaser.Scene {
 
       this.autoAgvIds = {};
       this.agentIds = {};
+
+      this.autoAgvsServer = [];
+      this.agentsServer = [];
    }
    setBusyGridState(x, y, state) {
       if (!x || !y) return;
@@ -280,7 +286,8 @@ export default class HelloWorldScene extends Phaser.Scene {
       }
       data.maxAgents = this.maxAgents;
       data.spawnProb = this.prob;
-      let jsonData = JSON.stringify(data);
+      let jsonData = JSON.stringify({ pos: this.doorPos });
+      console.log(jsonData);
       const e = document.createElement("a");
       e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
       e.setAttribute("download", "save.json");
@@ -401,11 +408,24 @@ export default class HelloWorldScene extends Phaser.Scene {
       });
 
       socket.addEventListener("message", (event) => {
-         console.log("Message from server ", event.data);
+         //console.log("Message from server ", event.data);
          if (event.data == "Generate") {
             let r = Math.floor(Math.random() * this.doorPos.length);
             let pos = this.doorPos[r];
             this.agents.push(new Agent(this, pos.x, pos.y));
+         } else if (event.data.includes("spawn")) {
+            console.log(event.data);
+            let cmdList = event.data.split(" ");
+            if (cmdList[1] == "atagv") {
+               let atagv = new AutoAgvServer(this, 1, 14, cmdList[2]);
+            } else if (cmdList[1] == "agent") {
+               let x = parseInt(cmdList[3]);
+               let y = parseInt(cmdList[4]);
+               let agent = new AgentServer(this, x, y, cmdList[2]);
+            }
+         } else {
+            this.autoAgvsServer.forEach((i) => i.notify(event.data));
+            this.agentsServer.forEach((i) => i.notify(event.data));
          }
       });
    }
@@ -428,6 +448,7 @@ export default class HelloWorldScene extends Phaser.Scene {
          tileWidth: 32,
       });
       console.log(this.agents);
+      //this.agentsServer.push(new DynamicEntity(this, 0, 1, "tile_sprites", 17));
 
       this.desDom = this.add.dom(1790, 600).createFromCache("des");
       this.desDom.setPerspective(800);
@@ -458,14 +479,16 @@ export default class HelloWorldScene extends Phaser.Scene {
       });
 
       this.agv = new Agv(this, 1, 14, this.pathLayer);
+      //let a = new ServerEntity(this, 0, 1, "tile_sprites", 17);
+      //this.atSetver = new AutoAgvServer(this, 1, 14, "2");
 
-      let spawnAutoAgvs = setInterval(() => {
-         this.autoAgvs = this.autoAgvs.filter((i) => i && i.active);
-         if (this.autoAgvs.length >= 5) {
-            return;
-         }
-         this.autoAgvs.push(new AutoAgv(this, 1, 13));
-      }, 5000);
+      // let spawnAutoAgvs = setInterval(() => {
+      //    this.autoAgvs = this.autoAgvs.filter((i) => i && i.active);
+      //    if (this.autoAgvs.length >= 5) {
+      //       return;
+      //    }
+      //    this.autoAgvs.push(new AutoAgv(this, 1, 13));
+      // }, 5000);
       this.addSaveLoadBtn();
       this.establishSocket();
       // let spawnAgents = setInterval(() => {
@@ -481,9 +504,11 @@ export default class HelloWorldScene extends Phaser.Scene {
       //    }
       // }, 1000);
    }
-   update() {
+   update(time, delta) {
       this.agv.update();
       this.autoAgvs.forEach((i) => i?.update());
       this.agents.forEach((i) => i?.update());
+      this.autoAgvsServer.forEach((i) => i.update(delta));
+      this.agentsServer.forEach((i) => i?.update());
    }
 }
