@@ -11,6 +11,7 @@ import FullWindowRectangle from "phaser3-rex-plugins/plugins/fullwindowrectangle
 import AutoAgvServer from "../classes/AutoAgvProjection";
 import AgentServer from "../classes/AgentServer";
 import ServerEntity from "../classes/ServerEntity";
+import AgvServer from "../classes/AgvServer";
 
 export default class HelloWorldScene extends Phaser.Scene {
    constructor() {
@@ -286,7 +287,16 @@ export default class HelloWorldScene extends Phaser.Scene {
       }
       data.maxAgents = this.maxAgents;
       data.spawnProb = this.prob;
-      let jsonData = JSON.stringify({ pos: this.doorPos });
+
+      let arr = [[]];
+      for (let i of this.pathLayer.layer.data) {
+         for (let j of i) {
+            if (!arr[j.x]) arr[j.x] = [];
+            arr[j.x][j.y] = j.properties.direction;
+         }
+      }
+
+      let jsonData = JSON.stringify({ pos: this.adjacentList });
       console.log(jsonData);
       const e = document.createElement("a");
       e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
@@ -467,6 +477,8 @@ export default class HelloWorldScene extends Phaser.Scene {
       this.gateLayer = map.createLayer("gate", tileset, 0, 0);
       map.createLayer("bed", tileset, 0, 0);
 
+      console.log(this.pathLayer);
+
       this.noPathLayer.setCollisionByProperty({ collides: true });
 
       this.generatePositions();
@@ -478,7 +490,8 @@ export default class HelloWorldScene extends Phaser.Scene {
          this.busyGrid[x][y] = null;
       });
 
-      this.agv = new Agv(this, 1, 14, this.pathLayer);
+      //this.agv = new Agv(this, 1, 14, this.pathLayer);
+      this.agv = new AgvServer(this, 1, 14, this.pathLayer);
       //let a = new ServerEntity(this, 0, 1, "tile_sprites", 17);
       //this.atSetver = new AutoAgvServer(this, 1, 14, "2");
 

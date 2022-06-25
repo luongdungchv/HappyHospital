@@ -16,7 +16,6 @@ import java.util.Stack;
 public class Main {
     public static void main(String arg[]) throws IOException {
 
-        // Game game = Game.createInstance();
         // Agent a = new Agent(9, 2);
         // System.out.println(game.GetMap(0, 0));
         // System.out.println(game.GetCellState(0, 0));
@@ -25,6 +24,13 @@ public class Main {
 
         // model.PrintList();
         runServer();
+        // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
+        // Game game = Game.createInstance();
+        // Agent a = new Agent();
+        // Pos[] excludeds = { new Pos(19, 2) };
+        // Stack<GraphNode> test = a.CalculatePath(new Pos(20, 2), new Pos(9, 2),
+        // excludeds);
+        // System.out.println(test);
         // List<Pos> list = Agent.GetAdjacentCells(51, 27);
         // System.out.println("sdf");
         // System.out.println(Utils.ValidDest(new Pos(0, 0), new Pos(4, 13)));

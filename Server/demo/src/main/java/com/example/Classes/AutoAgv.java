@@ -34,7 +34,7 @@ public class AutoAgv extends AIEntity {
         }
         CalculateRandomPath();
 
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask task = new MoveSchedule();
         timer.schedule(task, 0, 500);
 
@@ -56,7 +56,7 @@ public class AutoAgv extends AIEntity {
             // System.out.println("hahaha");
         }
 
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask task = new MoveSchedule();
         timer.schedule(task, 0, 500);
     }

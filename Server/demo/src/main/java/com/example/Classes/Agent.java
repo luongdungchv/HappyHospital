@@ -14,6 +14,19 @@ public class Agent extends AIEntity {
 
     public Stack<GraphNode> movePath;
     public Pos finalDest;
+    public boolean isPrior = false;
+
+    public Agent() {
+
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        // TODO Auto-generated method stub
+        // super.finalize();
+        System.out.println("finalize");
+
+    }
 
     public Agent(int x, int y) {
         Game game = Game.getInstance();
@@ -25,7 +38,7 @@ public class Agent extends AIEntity {
         }
         game.SetAgentIdState(randId, true);
         this.id = String.format("agent%d", randId);
-        System.out.println("new agent: " + id);
+        System.out.println("new agent: " + game.GetAgent(this.id));
         game.AddAgent(this.id, this);
 
         try {
@@ -37,17 +50,19 @@ public class Agent extends AIEntity {
         }
         CalculateRandomPath();
 
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask task = new MoveSchedule();
         timer.schedule(task, 0, 4000);
     }
 
     public Agent(int x, int y, int x1, int y1, String newId) {
+        Game game = Game.getInstance();
         this.curSrc = new Pos(x, y);
         this.id = newId;
-        this.movePath = CalculatePath(new Pos(x, y), new Pos(x1, y1));
+        this.movePath = CalculatePath(new Pos(x, y), new Pos(x1, y1), new Pos[0]);
         this.finalDest = new Pos(x1, y1);
         System.out.println("haha");
+        game.AddAgent(this.id, this);
         try {
             App.SendText(String.format("spawn agent %s %d %d", this.id, x, y));
         } catch (IOException e) {
@@ -55,7 +70,7 @@ public class Agent extends AIEntity {
             // e.printStackTrace();
             // System.out.println("hahaha");
         }
-        Timer timer = new Timer();
+        timer = new Timer();
         TimerTask task = new MoveSchedule();
         timer.schedule(task, 0, 4000);
     }
@@ -64,10 +79,10 @@ public class Agent extends AIEntity {
         Pos[] doorPos = Game.getInstance().doorPos;
         int randDestIndex = (int) Math.floor(Math.random() * doorPos.length);
         this.finalDest = doorPos[randDestIndex];
-        this.movePath = CalculatePath(this.curSrc, finalDest);
+        this.movePath = CalculatePath(this.curSrc, finalDest, new Pos[0]);
     }
 
-    public Stack<GraphNode> CalculatePath(Pos start, Pos end) {
+    public Stack<GraphNode> CalculatePath(Pos start, Pos end, Pos[] excludedPos) {
         Game game = Game.getInstance();
         List<GraphNode> open = new ArrayList<GraphNode>();
         List<GraphNode> close = new ArrayList<GraphNode>();
@@ -87,10 +102,15 @@ public class Agent extends AIEntity {
             }
             Pos[] listPos = GetAdjacentCells(curNode.pos.x, curNode.pos.y);
             for (Pos i : listPos) {
+
                 if (!game.GetMap(i.x, i.y)) {
                     continue;
                 }
                 boolean canContinue = false;
+                for (Pos excluded : excludedPos) {
+                    if (excluded.x == i.x && excluded.y == i.y)
+                        canContinue = true;
+                }
                 for (GraphNode node : close) {
                     if (node.pos.x == i.x && node.pos.y == i.y) {
                         canContinue = true;
@@ -165,6 +185,9 @@ public class Agent extends AIEntity {
 
     class MoveSchedule extends TimerTask {
 
+        public MoveSchedule() {
+        }
+
         public void run() {
             GraphNode nextNode = null;
             GraphNode moveNode = null;
@@ -207,8 +230,46 @@ public class Agent extends AIEntity {
             String curDestState = game.GetCellState(curDest.x, curDest.y);
             // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
             // curDestState));
-            String msg = String.format("agent %s pos %d %d %d %d", id, curDest.x,
-                    curDest.y, curDest.x, curDest.y);
+
+            if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
+
+                // movePath.push(moveNode);
+                if (curDestState.contains("atagv")) {
+                    Pos[] excludeds = { curDest };
+                    movePath = CalculatePath(curSrc, finalDest, excludeds);
+                    System.out.println(String.format("dest: %d %d", curDest.x, curDest.y));
+                    this.run();
+                    return;
+                } else {
+                    boolean isObstaclePrior = game.GetAgent(curDestState).isPrior;
+                    if (isPrior) {
+
+                        if (isObstaclePrior) {
+                            isPrior = false;
+                            Pos[] excludeds = { curDest };
+                            movePath = CalculatePath(curSrc, finalDest, excludeds);
+                            this.run();
+                            return;
+                        }
+                    }
+                    if (!isPrior) {
+                        if (!isObstaclePrior) {
+                            game.GetAgent(curDestState).isPrior = true;
+                            Pos[] excludeds = { curDest };
+                            movePath = CalculatePath(curSrc, finalDest, excludeds);
+                            this.run();
+                            return;
+                        }
+                    }
+
+                }
+                movePath.push(moveNode);
+                return;
+
+            }
+            String msg = String.format("agent %s pos %d %d", id, curDest.x,
+                    curDest.y);
+            game.SetCellState(curDest.x, curDest.y, id);
             try {
                 App.SendText(msg);
             } catch (IOException e) {
@@ -216,12 +277,8 @@ public class Agent extends AIEntity {
                 e.printStackTrace();
             }
 
-            if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
-                movePath.push(moveNode);
-                return;
-            }
-            game.SetCellState(curDest.x, curDest.y, id);
-
         }
+
     }
+
 }

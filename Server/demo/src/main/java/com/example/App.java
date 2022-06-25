@@ -65,8 +65,8 @@ public class App {
     @OnOpen
     public void onOpen(Session session) throws IOException {
         socketSession = session;
-        Game game = Game.createInstance();
-        game.socketSession = session;
+        // Game game = Game.createInstance();
+        // game.socketSession = session;
         System.out.println("Session started");
 
     }
@@ -84,13 +84,16 @@ public class App {
     public void onClose(CloseReason reason, Session session) {
         System.out.println(
                 String.format("Closing a WebSocket (%s) due to %s", session.getId(), reason.getReasonPhrase()));
+        Game.End();
         // timer.cancel();
     }
 
     @OnError
-    public void onError(Session session, Throwable t) {
+    public void onError(Session session, Throwable t) throws IOException {
         System.out
                 .println(String.format("Error in WebSocket session %s%n", session == null ? "null" : session.getId()));
         System.out.println(t);
+        session.close();
+        Game.End();
     }
 }
