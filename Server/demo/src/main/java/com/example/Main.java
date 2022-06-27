@@ -5,6 +5,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 
 import com.example.Classes.*;
+import com.example.Classes.Models.*;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.*;
 
@@ -21,9 +23,16 @@ public class Main {
         // System.out.println(game.GetCellState(0, 0));
         // Entity e = new AutoAgv(49, 13, 45, 2, "2");
         // game.AddEntity("1", e);
-
+        // String[][] test = Utils.DeserializeJson("save (1).json",
+        // PosPropsModel.class).props;
         // model.PrintList();
+        // PosFloat test = new PosFloat(0.1, 0);
+        // PosFloat one = test.ToOne();
+        // System.out.println(String.format("%f, %f", one.x, one.y));
         runServer();
+        double a = 4.000000;
+        System.out.println(Double.toString(a));
+
         // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
         // Game game = Game.createInstance();
         // Agent a = new Agent();

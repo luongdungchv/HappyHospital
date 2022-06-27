@@ -65,15 +65,59 @@ public class App {
     @OnOpen
     public void onOpen(Session session) throws IOException {
         socketSession = session;
-        // Game game = Game.createInstance();
-        // game.socketSession = session;
+        Game game = Game.createInstance();
+        game.socketSession = session;
         System.out.println("Session started");
 
     }
 
     @OnMessage
     public void onMessage(String txt, Session session) throws IOException {
+        double speed = 0.1000000000000;
+        Game game = Game.getInstance();
         System.out.println(txt);
+        String[] cmdList = txt.split(" ");
+
+        // String typeCmd = cmdList[0];
+        // String dirCmd = cmdList[1];
+
+        if (cmdList[0].equals("agv")) {
+            if (cmdList[1].equals("right")) {
+                if (cmdList[2].equals("d")) {
+                    game.agv.velocity = PosFloat.Add(game.agv.velocity, new PosFloat(speed, 0));
+                    // System.out.println(String.format("%e %e", game.agv.velocity.x,
+                    // game.agv.velocity.y));
+
+                } else if (cmdList[2].equals("u")) {
+                    game.agv.velocity = PosFloat.Minus(game.agv.velocity, new PosFloat(speed, 0));
+                }
+            }
+
+            if (cmdList[1].equals("left")) {
+                if (cmdList[2].equals("d")) {
+                    game.agv.velocity = PosFloat.Add(game.agv.velocity, new PosFloat(-speed, 0));
+                } else if (cmdList[2].equals("u")) {
+                    game.agv.velocity = PosFloat.Minus(game.agv.velocity, new PosFloat(-speed, 0));
+                }
+            }
+            if (cmdList[1].equals("top")) {
+                if (cmdList[2].equals("d")) {
+                    game.agv.velocity = PosFloat.Add(game.agv.velocity, new PosFloat(0, -speed));
+                } else if (cmdList[2].equals("u")) {
+                    game.agv.velocity = PosFloat.Minus(game.agv.velocity, new PosFloat(0, -speed));
+                }
+            }
+            if (cmdList[1].equals("bottom")) {
+                if (cmdList[2].equals("d")) {
+                    game.agv.velocity = PosFloat.Add(game.agv.velocity, new PosFloat(0, speed));
+                } else if (cmdList[2].equals("u")) {
+                    game.agv.velocity = PosFloat.Minus(game.agv.velocity, new PosFloat(0, speed));
+                }
+            }
+            // System.out.println(String.format("%e %e", game.agv.velocity.x,
+            // game.agv.velocity.y));
+        }
+
         // int index = txt.indexOf("_");
         // String cmd = txt.substring(0, index);
         // String arg = txt.substring(index);
@@ -90,9 +134,11 @@ public class App {
 
     @OnError
     public void onError(Session session, Throwable t) throws IOException {
-        System.out
-                .println(String.format("Error in WebSocket session %s%n", session == null ? "null" : session.getId()));
-        System.out.println(t);
+        // System.out
+        // .println(String.format("Error in WebSocket session %s%n", session == null ?
+        // "null" : session.getId()));
+        // System.out.println(t);
+        t.printStackTrace();
         session.close();
         Game.End();
     }

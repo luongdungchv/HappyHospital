@@ -290,13 +290,15 @@ export default class HelloWorldScene extends Phaser.Scene {
 
       let arr = [[]];
       for (let i of this.pathLayer.layer.data) {
-         for (let j of i) {
-            if (!arr[j.x]) arr[j.x] = [];
-            arr[j.x][j.y] = j.properties.direction;
-         }
+      }
+      for (let j of this.pathLayer
+         .getTilesWithin()
+         .filter((v) => v.index != -1)) {
+         if (!arr[j.x]) arr[j.x] = [];
+         arr[j.x][j.y] = j.properties.direction || "";
       }
 
-      let jsonData = JSON.stringify({ pos: this.adjacentList });
+      let jsonData = JSON.stringify({ pos: arr });
       console.log(jsonData);
       const e = document.createElement("a");
       e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
@@ -436,6 +438,7 @@ export default class HelloWorldScene extends Phaser.Scene {
          } else {
             this.autoAgvsServer.forEach((i) => i.notify(event.data));
             this.agentsServer.forEach((i) => i.notify(event.data));
+            this.agv.notify(event.data);
          }
       });
    }

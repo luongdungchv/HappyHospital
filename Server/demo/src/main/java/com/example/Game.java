@@ -32,6 +32,8 @@ public class Game {
     private Hashtable<Integer, Boolean> atagvIds = new Hashtable<Integer, Boolean>();
     private Hashtable<Integer, Boolean> agentIds = new Hashtable<Integer, Boolean>();
 
+    public Agv agv;
+
     public int maxAgents = 5;
     public double spawnProb = 0.3;
 
@@ -89,7 +91,7 @@ public class Game {
         instance.pathPos = Utils.DeserializeJson("pathpos.json", PosModel.class).pos;
         instance.groundPos = Utils.DeserializeJson("groundPos.json", PosModel.class).pos;
         instance.doorPos = Utils.DeserializeJson("doorPos.json", PosModel.class).pos;
-        instance.pathPosProps = Utils.DeserializeJson("pathPosProps.json", PosPropsModel.class).props;
+        instance.pathPosProps = Utils.DeserializeJson("save (1).json", PosPropsModel.class).props;
 
         for (int i = 0; i < 10; i++) {
             instance.atagvIds.put(i, false);
@@ -102,6 +104,7 @@ public class Game {
         }
         // instance.SchduleAtagvSpawn();
         // instance.ScheduleAgentSpawn();
+        instance.agv = new Agv(1, 13);
         System.out.println("asasdf");
         return instance;
 
@@ -159,6 +162,20 @@ public class Game {
 
     public boolean GetMap(int x, int y) {
         return map[x][y];
+    }
+
+    public String GetPathPosProp(int x, int y) {
+        String res = "";
+        try {
+            res = pathPosProps[x][y];
+        } catch (Exception e) {
+            res = null;
+        }
+        return res;
+    }
+
+    public String GetPathPosProp(Pos pos) {
+        return GetPathPosProp(pos.x, pos.y);
     }
 
     public void SchduleAtagvSpawn() {

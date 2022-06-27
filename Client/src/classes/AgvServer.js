@@ -48,6 +48,14 @@ class AgvServer extends DynamicEntity {
 
       console.log(`dest: ${this.destX} ${this.destY}`);
    }
+   notify(msg) {
+      let cmdList = msg.split(" ");
+      if (cmdList[0] == "agv") {
+         let x = parseFloat(cmdList[1]);
+         let y = parseFloat(cmdList[2]);
+         this.setPosition(x * 32, y * 32);
+      }
+   }
    update() {
       this.setVelocity(0);
 
@@ -61,7 +69,7 @@ class AgvServer extends DynamicEntity {
          //  if (t) {
          //     this.body.velocity.y = -this.speed;
          //  }
-         this.scene.socket.send("agv top");
+         this.scene.socket.send("agv top d");
          this.top = true;
       }
 
@@ -69,7 +77,7 @@ class AgvServer extends DynamicEntity {
          //  if (l) {
          //     this.body.velocity.x = -this.speed;
          //  }
-         this.scene.socket.send("agv left");
+         this.scene.socket.send("agv left d");
          this.left = true;
       }
 
@@ -77,7 +85,7 @@ class AgvServer extends DynamicEntity {
          //  if (b) {
          //     this.body.velocity.y = this.speed;
          //  }
-         this.scene.socket.send("agv bottom");
+         this.scene.socket.send("agv bottom d");
          this.bottom = true;
       }
 
@@ -86,13 +94,25 @@ class AgvServer extends DynamicEntity {
          //     this.body.velocity.x = this.speed;
          //  }
          console.log("right click", this.right);
-         this.scene.socket.send("agv right");
+         this.scene.socket.send("agv right d");
          this.right = true;
       }
-      this.keyW?.isUp && (this.top = false);
-      this.keyD?.isUp && (this.right = false);
-      this.keyS?.isUp && (this.bottom = false);
-      this.keyA?.isUp && (this.left = false);
+      if (this.keyW?.isUp && this.top) {
+         this.scene.socket.send("agv top u");
+         this.top = false;
+      }
+      if (this.keyA?.isUp && this.left) {
+         this.scene.socket.send("agv left u");
+         this.left = false;
+      }
+      if (this.keyD?.isUp && this.right) {
+         this.scene.socket.send("agv right u");
+         this.right = false;
+      }
+      if (this.keyS?.isUp && this.bottom) {
+         this.scene.socket.send("agv bottom u");
+         this.bottom = false;
+      }
 
       //console.log("right click", this.right);
       //   this.left = false;
