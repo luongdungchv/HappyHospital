@@ -102,8 +102,9 @@ public class Game {
         for (Pos i : instance.groundPos) {
             instance.SetMap(i.x, i.y, true);
         }
-        // instance.SchduleAtagvSpawn();
-        // instance.ScheduleAgentSpawn();
+        instance.SchduleAtagvSpawn();
+        instance.ScheduleAgentSpawn();
+        // instance.SetCellState(4, 16, "atagv1");
         instance.agv = new Agv(1, 13);
         System.out.println("asasdf");
         return instance;
@@ -114,8 +115,16 @@ public class Game {
         return cellStates[x][y];
     }
 
+    public String GetCellState(Pos pos) {
+        return cellStates[pos.x][pos.y];
+    }
+
     public void SetCellState(int x, int y, String state) {
         cellStates[x][y] = state;
+    }
+
+    public void SetCellState(Pos pos, String state) {
+        cellStates[pos.x][pos.y] = state;
     }
 
     public void AddAtAgv(String iden, AutoAgv entity) {
@@ -180,21 +189,21 @@ public class Game {
 
     public void SchduleAtagvSpawn() {
         System.out.println("spawn start");
-        Timer timer = new Timer();
-        TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
-        timer.schedule(spawnAtagv, 0, 5000);
+        // Timer timer = new Timer();
+        // TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
+        // timer.schedule(spawnAtagv, 0, 5000);
         // SetCellState(4, 20, "aagv");
-        // AutoAgv newAtagv = new AutoAgv(9, 2, 20, 2, "atagv1");
+        AutoAgv newAtagv = new AutoAgv(9, 2, 20, 2, "atagv1");
 
         // Agent newAtagv = new Agent(9, 2, 20, 2, "agent2");
         // AutoAgv newAtagv = new AutoAgv(1, 14);
     }
 
     public void ScheduleAgentSpawn() {
-        // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
-        Timer timer = new Timer();
-        TimerTask spawanAgent = new AgentSpawnSchedule();
-        timer.schedule(spawanAgent, 0, 5000);
+        Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
+        // Timer timer = new Timer();
+        // TimerTask spawanAgent = new AgentSpawnSchedule();
+        // timer.schedule(spawanAgent, 0, 5000);
     }
 
     class AgentSpawnSchedule extends TimerTask {

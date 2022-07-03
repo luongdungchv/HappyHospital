@@ -17,14 +17,7 @@ class AgvServer extends DynamicEntity {
       if (dest) {
          this.destX = dest.x;
          this.destY = dest.y;
-         this.desText = new Text(
-            this.scene,
-            this.destX * 32,
-            this.destY * 32,
-            "DES",
-            "16px",
-            "#00FF00"
-         );
+         this.updateDestText();
       } else {
          this.changeDest();
       }
@@ -51,10 +44,27 @@ class AgvServer extends DynamicEntity {
    notify(msg) {
       let cmdList = msg.split(" ");
       if (cmdList[0] == "agv") {
-         let x = parseFloat(cmdList[1]);
-         let y = parseFloat(cmdList[2]);
-         this.setPosition(x * 32, y * 32);
+         if (cmdList[1] !== "dest") {
+            let x = parseFloat(cmdList[1]);
+            let y = parseFloat(cmdList[2]);
+            this.setPosition(x * 32, y * 32);
+         } else {
+            this.desText.destroy();
+            this.destX = parseInt(cmdList[2]);
+            this.destY = parseInt(cmdList[3]);
+            this.updateDestText();
+         }
       }
+   }
+   updateDestText() {
+      this.desText = new Text(
+         this.scene,
+         this.destX * 32,
+         this.destY * 32,
+         "DES",
+         "16px",
+         "#00FF00"
+      );
    }
    update() {
       this.setVelocity(0);

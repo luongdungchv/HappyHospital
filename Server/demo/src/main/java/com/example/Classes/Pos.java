@@ -12,4 +12,8 @@ public class Pos {
     public Pos() {
 
     }
+
+    public boolean Equals(Pos input) {
+        return (x == input.x && y == input.y);
+    }
 }

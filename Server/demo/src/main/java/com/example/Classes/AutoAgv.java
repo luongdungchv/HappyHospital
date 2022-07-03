@@ -25,14 +25,8 @@ public class AutoAgv extends AIEntity {
         this.id = String.format("atagv%d", id);
         // System.out.println("atagv created " + this.id);
         Game.getInstance().AddAtAgv(this.id, this);
-        try {
-            App.SendText("spawn atagv " + this.id);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // System.out.println("hahaha");
-        }
         CalculateRandomPath();
+        App.SendText(String.format("spawn atagv %s %d %d", this.id, this.finalDest.x, this.finalDest.y));
 
         timer = new Timer();
         TimerTask task = new MoveSchedule();
@@ -48,13 +42,7 @@ public class AutoAgv extends AIEntity {
         this.id = id;
         this.finalDest = new Pos(x1, y1);
 
-        try {
-            App.SendText("spawn atagv " + this.id);
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // System.out.println("hahaha");
-        }
+        App.SendText(String.format("spawn atagv %s %d %d", this.id, this.finalDest.x, this.finalDest.y));
 
         timer = new Timer();
         TimerTask task = new MoveSchedule();
@@ -142,6 +130,8 @@ public class AutoAgv extends AIEntity {
     }
 
     class MoveSchedule extends TimerTask {
+        boolean countdownComplete = false;
+        boolean isCountingDown = false;
 
         public void run() {
             GraphNode nextNode = null;
@@ -150,6 +140,13 @@ public class AutoAgv extends AIEntity {
             try {
                 moveNode = movePath.pop();
             } catch (Exception e) {
+                try {
+                    Thread.sleep(4000);
+                } catch (InterruptedException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
+
                 CalculateRandomPath();
 
                 if (movePath == null || movePath.size() == 0) {
@@ -158,13 +155,11 @@ public class AutoAgv extends AIEntity {
                     game.SetCellState(curDest.x, curDest.y, null);
                     game.SetAtAgvIdState(GetIdNum(), false);
                     game.RemoveAtAgv(id);
-                    try {
-                        App.SendText(String.format("atagv %s el", id));
-                    } catch (IOException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
-                    }
+                    App.SendText(String.format("atagv %s el", id));
+
                     this.cancel();
+                } else {
+                    App.SendText(String.format("atagv %s dest %d %d", id, finalDest.x, finalDest.y));
                 }
                 return;
             }
@@ -184,18 +179,27 @@ public class AutoAgv extends AIEntity {
             // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
             // curDestState));
             String msg = String.format("atagv %s pos %d %d %d %d", id, curSrc.x, curSrc.y, curDest.x, curDest.y);
-            try {
-                App.SendText(msg);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            App.SendText(msg);
+
             if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
                 movePath.push(moveNode);
                 return;
             }
             game.SetCellState(curDest.x, curDest.y, id);
 
+        }
+
+        class CountdownSchedule extends TimerTask {
+            public CountdownSchedule() {
+                isCountingDown = true;
+                countdownComplete = false;
+            }
+
+            public void run() {
+                countdownComplete = true;
+                isCountingDown = false;
+                this.cancel();
+            }
         }
     }
 

@@ -41,14 +41,8 @@ public class Agent extends AIEntity {
         System.out.println("new agent: " + game.GetAgent(this.id));
         game.AddAgent(this.id, this);
 
-        try {
-            App.SendText(String.format("spawn agent %s %d %d", this.id, x, y));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // System.out.println("hahaha");
-        }
         CalculateRandomPath();
+        App.SendText(String.format("spawn agent %s %d %d %d %d", this.id, x, y, finalDest.x, finalDest.y));
 
         timer = new Timer();
         TimerTask task = new MoveSchedule();
@@ -63,13 +57,8 @@ public class Agent extends AIEntity {
         this.finalDest = new Pos(x1, y1);
         System.out.println("haha");
         game.AddAgent(this.id, this);
-        try {
-            App.SendText(String.format("spawn agent %s %d %d", this.id, x, y));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            // e.printStackTrace();
-            // System.out.println("hahaha");
-        }
+        App.SendText(String.format("spawn agent %s %d %d %d %d", this.id, x, y, finalDest.x, finalDest.y));
+
         timer = new Timer();
         TimerTask task = new MoveSchedule();
         timer.schedule(task, 0, 4000);
@@ -207,7 +196,7 @@ public class Agent extends AIEntity {
                     game.SetAgentIdState(GetIdNum(), false);
                     game.RemoveAgent(id);
 
-                } catch (IOException e1) {
+                } catch (Exception e1) {
                     // TODO Auto-generated catch block
                     e1.printStackTrace();
                 }
@@ -270,12 +259,7 @@ public class Agent extends AIEntity {
             String msg = String.format("agent %s pos %d %d", id, curDest.x,
                     curDest.y);
             game.SetCellState(curDest.x, curDest.y, id);
-            try {
-                App.SendText(msg);
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            App.SendText(msg);
 
         }
 

@@ -7,11 +7,12 @@ import { lerp } from "./Constants";
 import ServerEntity from "./ServerEntity";
 
 class AgentServer extends ServerEntity {
-   constructor(scene, x, y, id) {
+   constructor(scene, x, y, id, dest) {
       super(scene, x, y, "tile_sprites", 17);
       // this.x = x;
       // this.y = y;
       this.curPos = { x: x, y: y };
+      this.dest = dest;
       //this.curPos = { x: 2, y: 14 };
       scene.agentsServer.push(this);
       this.id = id;
@@ -26,7 +27,20 @@ class AgentServer extends ServerEntity {
       this.elapse = 0;
       setTimeout(() => console.log("timeout"), 1000);
       this.timer = true;
+      this.updateDestText();
       //this.updatePosition();
+   }
+   updateDestText() {
+      let split = this.id.split("t");
+      console.log(split[1], this.dest);
+      this.desText = new Text(
+         this.scene,
+         this.dest.x * 32,
+         this.dest.y * 32,
+         `${split[1]}`,
+         "16px",
+         "#ffffff"
+      );
    }
 
    notify(msg) {

@@ -238,6 +238,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       );
    }
    updateHarmfulness() {
+      console.log(this.harmfulness);
       this.harmfulnessTable.text = `H.ness: ${Math.floor(this.harmfulness)}`;
    }
    saveMap() {
@@ -429,11 +430,25 @@ export default class HelloWorldScene extends Phaser.Scene {
             console.log(event.data);
             let cmdList = event.data.split(" ");
             if (cmdList[1] == "atagv") {
-               let atagv = new AutoAgvServer(this, 1, 14, cmdList[2]);
+               let destX = parseInt(cmdList[3]);
+               let destY = parseInt(cmdList[4]);
+               let dest = { x: destX, y: destY };
+               let atagv = new AutoAgvServer(this, 1, 14, cmdList[2], dest);
             } else if (cmdList[1] == "agent") {
                let x = parseInt(cmdList[3]);
                let y = parseInt(cmdList[4]);
-               let agent = new AgentServer(this, x, y, cmdList[2]);
+               let destX = parseInt(cmdList[5]);
+               let destY = parseInt(cmdList[6]);
+               let dest = { x: destX, y: destY };
+
+               let agent = new AgentServer(this, x, y, cmdList[2], dest);
+            } else if (cmdList[1] == "agv") {
+               let srcX = parseInt(cmdList[2]);
+               let srcY = parseInt(cmdList[3]);
+               let destX = parseInt(cmdList[4]);
+               let destY = parseInt(cmdList[5]);
+               let dest = { x: destX, y: destY };
+               this.agv = new AgvServer(this, srcX, srcY, this.pathLayer, dest);
             }
          } else {
             this.autoAgvsServer.forEach((i) => i.notify(event.data));
@@ -494,7 +509,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       });
 
       //this.agv = new Agv(this, 1, 14, this.pathLayer);
-      this.agv = new AgvServer(this, 1, 14, this.pathLayer);
+      //this.agv = new AgvServer(this, 1, 13, this.pathLayer);
       //let a = new ServerEntity(this, 0, 1, "tile_sprites", 17);
       //this.atSetver = new AutoAgvServer(this, 1, 14, "2");
 
@@ -521,7 +536,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       // }, 1000);
    }
    update(time, delta) {
-      this.agv.update();
+      this.agv?.update();
       this.autoAgvs.forEach((i) => i?.update());
       this.agents.forEach((i) => i?.update());
       this.autoAgvsServer.forEach((i) => i.update(delta));

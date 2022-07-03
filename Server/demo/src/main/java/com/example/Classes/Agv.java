@@ -9,18 +9,40 @@ public class Agv extends Entity {
     public PosFloat velocity;
     public PosFloat curPos;
     public PosFloat pendingChangeDir;
+    Game game;
+    Pos finalDest;
 
     public Agv(int x, int y) {
         this.curSrc = new Pos(x, y);
+        this.curDest = curSrc;
         this.curPos = new PosFloat(this.curSrc);
         this.velocity = new PosFloat(0, 0);
+        this.game = Game.getInstance();
 
         String msg = String.format("agv %f %f", curPos.x, curPos.y);
         System.out.println("msg");
 
+        // ChangeDest();
+        finalDest = new Pos(4, 2);
+        String spawnMsg = String.format("spawn agv %d %d %d %d", curSrc.x, curSrc.y, finalDest.x, finalDest.y);
+
+        App.SendText(spawnMsg);
+
         TimerTask moveTask = new MoveSchedule();
         Timer timer = new Timer();
-        timer.schedule(moveTask, 0, 100);
+        timer.schedule(moveTask, 0, 50);
+    }
+
+    private void ChangeDest() {
+        int randomDestIndex = (int) (Math.random() * game.pathPos.length);
+        int loopCount = 0;
+        while (!Utils.ValidDest(curSrc, game.pathPos[randomDestIndex])) {
+            randomDestIndex = (int) Math.random() * game.pathPos.length;
+            loopCount++;
+        }
+
+        finalDest = game.pathPos[randomDestIndex];
+        System.out.println(String.format("%d %d %d %d", finalDest.x, finalDest.y, loopCount, randomDestIndex));
     }
 
     class MoveSchedule extends TimerTask {
@@ -28,6 +50,12 @@ public class Agv extends Entity {
             Game game = Game.getInstance();
 
             curPos.ResolveApproximation();
+
+            if (game.GetCellState(curSrc) == "agv")
+                game.SetCellState(curSrc, null);
+            if (game.GetCellState(curDest) == "agv")
+                game.SetCellState(curDest, null);
+
             curSrc = curPos.Floor();
             curDest = curPos.Ceil();
 
@@ -39,6 +67,10 @@ public class Agv extends Entity {
             if ((state1 != null && !state1.equals("")) || (state2 != null && !state2.equals(""))) {
                 return;
             }
+
+            game.SetCellState(curSrc, "agv");
+            game.SetCellState(curDest, "agv");
+
             if (velocity.x == 0 && velocity.y == 0) {
                 pendingChangeDir = new PosFloat(0, 0);
                 return;
@@ -59,9 +91,11 @@ public class Agv extends Entity {
 
             PosFloat moveDir = new PosFloat(0, 0);
 
-            // System.out.println(
-            // String.format("check %b %s %s", pendingChangeDir.IsZero(),
-            // pendingChangeDir.x, pendingChangeDir.y));
+            if (curSrc.Equals(finalDest) && curDest.Equals(finalDest)) {
+                ChangeDest();
+                App.SendText(String.format("agv dest %d %d", finalDest.x, finalDest.y));
+            }
+
             if (curSrcProp.equals("") && curDestProp.equals("")) {
 
                 PosFloat test = new PosFloat(0, velocity.y).ToOne();
@@ -74,15 +108,18 @@ public class Agv extends Entity {
                     Pos incomingPosV = PosFloat.Add(curPos, new PosFloat(0, velocity.y).ToOne()).ToPosInt();
 
                     if (!velocity.IsDiagonal()) {
-                        if (game.GetPathPosProp(incomingPosH) != null) {
+                        if (game.GetPathPosProp(incomingPosH) != null && velocity.x != 0) {
                             pendingChangeDir = new PosFloat(velocity.x, 0);
-                        } else if (game.GetPathPosProp(incomingPosV) != null) {
+                        } else if (game.GetPathPosProp(incomingPosV) != null && velocity.y != 0) {
                             pendingChangeDir = new PosFloat(0, velocity.y);
+                            System.out.println("V not null");
                         }
+                        System.out.println(
+                                String.format("incoming %s %s %s %s %s %s", incomingPosH.x, incomingPosH.y,
+                                        incomingPosV.x,
+                                        incomingPosV.y, pendingChangeDir.x, game.GetPathPosProp(incomingPosH) != null));
+
                     }
-                    System.out.println(
-                            String.format("incoming %s %s %s %s", incomingPosH.x, incomingPosH.y, incomingPosV.x,
-                                    test.y));
 
                     curPos = PosFloat.Add(curPos, pendingChangeDir);
                 }
@@ -113,12 +150,7 @@ public class Agv extends Entity {
             String msg = String.format("agv %f %f %f %f %s %s", curPos.x, curPos.y, velocity.x, velocity.y, curSrcProp,
                     curDestProp);
             System.out.println(msg);
-            try {
-                App.SendText(String.format("agv %f %f", curPos.x, curPos.y));
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+            App.SendText(String.format("agv %f %f", curPos.x, curPos.y));
 
         }
     }

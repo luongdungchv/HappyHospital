@@ -58,8 +58,13 @@ public class App {
 
     private static Session socketSession;
 
-    public static void SendText(String text) throws IOException {
-        socketSession.getBasicRemote().sendText(text);
+    public static void SendText(String text) {
+        try {
+            socketSession.getBasicRemote().sendText(text);
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     @OnOpen
