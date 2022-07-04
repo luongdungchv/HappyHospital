@@ -113,6 +113,12 @@ public class Agv extends Entity {
             PosFloat moveDir = new PosFloat(0, 0);
 
             if (curSrc.Equals(finalDest) && curDest.Equals(finalDest)) {
+                try {
+                    Thread.sleep(4000);
+                } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
                 ChangeDest();
                 App.SendText(String.format("agv dest %d %d", finalDest.x, finalDest.y));
             }

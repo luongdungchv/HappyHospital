@@ -96,6 +96,7 @@ class AutoAgvServer extends ServerEntity {
             this.updatePosition(10, 0.0215);
          } else if (cmdList[2] == "el") {
             console.log("eliminate command");
+            this.eraseDeadline();
             this.eliminate();
          } else if (cmdList[2] == "dest") {
             this.desText.destroy();
