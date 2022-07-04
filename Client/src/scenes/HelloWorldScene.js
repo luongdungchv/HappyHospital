@@ -210,11 +210,11 @@ export default class HelloWorldScene extends Phaser.Scene {
 
             if (!isNaN(numAgent) && numAgent > 0) {
                this.maxAgents = numAgent;
-               this.socket.send(`ma${numAgent}`);
+               this.socket.send(`ma ${numAgent}`);
             }
             if (!isNaN(spawnProb) && spawnProb > 0) {
                this.prob = spawnProb;
-               this.socket.send(`pr${spawnProb}`);
+               this.socket.send(`pr ${spawnProb}`);
             }
             console.log(numAgent);
          }
@@ -397,6 +397,7 @@ export default class HelloWorldScene extends Phaser.Scene {
       });
 
       socket.addEventListener("message", (event) => {
+         let cmdList = event.data.split(" ");
          //console.log("Message from server ", event.data);
          if (event.data == "Generate") {
             let r = Math.floor(Math.random() * this.doorPos.length);
@@ -404,7 +405,7 @@ export default class HelloWorldScene extends Phaser.Scene {
             this.agents.push(new Agent(this, pos.x, pos.y));
          } else if (event.data.includes("spawn")) {
             console.log(event.data);
-            let cmdList = event.data.split(" ");
+
             if (cmdList[1] == "atagv") {
                let destX = parseInt(cmdList[3]);
                let destY = parseInt(cmdList[4]);
@@ -436,6 +437,10 @@ export default class HelloWorldScene extends Phaser.Scene {
                let dest = { x: destX, y: destY };
                this.agv = new AgvServer(this, srcX, srcY, this.pathLayer, dest);
             }
+         } else if (cmdList[0] == "ma") {
+            this.maxAgents = parseInt(cmdList[1]);
+         } else if (cmdList[0] == "pr") {
+            this.prob = parseFloat(cmdList[1]);
          } else {
             this.autoAgvsServer.forEach((i) => i.notify(event.data));
             this.agentsServer.forEach((i) => i.notify(event.data));

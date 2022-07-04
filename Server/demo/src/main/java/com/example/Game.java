@@ -221,7 +221,7 @@ public class Game {
     }
 
     public void SchduleAtagvSpawn() {
-        System.out.println("spawn start");
+        // System.out.println("spawn start");
         Timer timer = new Timer();
         TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
         timer.schedule(spawnAtagv, 0, 5000);
@@ -233,10 +233,14 @@ public class Game {
     }
 
     public void ScheduleAgentSpawn() {
-        // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
+        // Agent newAgent = new Agent(25, 12, 28, 9, "agent1");
+        // SetCellState(24, 10, "atagv1");
+        // SetCellState(23, 10, "atagv2");
+        // SetCellState(25, 10, "atagv3");
+        // newAgent.isPrior = true;
         Timer timer = new Timer();
         TimerTask spawanAgent = new AgentSpawnSchedule();
-        timer.schedule(spawanAgent, 0, 5000);
+        timer.schedule(spawanAgent, 0, 2000);
     }
 
     class AgentSpawnSchedule extends TimerTask {
@@ -247,9 +251,12 @@ public class Game {
             // Agent newAgent = new Agent(randomPos.x, randomPos.y);
             // AddEntity("agent " + String.valueOf(randomId), newAgent);
 
-            if (agents.size() >= 10) {
+            if (agents.size() >= maxAgents) {
                 return;
             }
+            double randomNum = Math.random();
+            if (randomNum > spawnProb)
+                return;
             int randomIndex = (int) Math.floor(Math.random() * doorPos.length);
             Pos chosenStart = doorPos[randomIndex];
             Agent newAgent = new Agent(chosenStart.x, chosenStart.y);

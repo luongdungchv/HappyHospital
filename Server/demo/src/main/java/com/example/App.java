@@ -70,9 +70,10 @@ public class App {
 
     @OnOpen
     public void onOpen(Session session) throws IOException {
-        SaveModel testData = Utils.DeserializeJsonFile("save (8).json", SaveModel.class);
+        // SaveModel testData = Utils.DeserializeJsonFile("save (8).json",
+        // SaveModel.class);
         socketSession = session;
-        Game game = Game.createInstance(testData);
+        Game game = Game.createInstance();
         game.socketSession = session;
         System.out.println("Session started");
 
@@ -136,10 +137,13 @@ public class App {
             // game.agv.velocity.y));
         }
 
-        // int index = txt.indexOf("_");
-        // String cmd = txt.substring(0, index);
-        // String arg = txt.substring(index);
-        // session.getBasicRemote().sendText(txt.toUpperCase());
+        else if (cmdList[0].equals("ma")) {
+            Game.getInstance().maxAgents = Integer.parseInt(cmdList[1]);
+            SendText(txt);
+        } else if (cmdList[0].equals("pr")) {
+            Game.getInstance().spawnProb = Double.parseDouble(cmdList[1]);
+            SendText(txt);
+        }
     }
 
     @OnClose

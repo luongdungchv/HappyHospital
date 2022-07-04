@@ -15,6 +15,7 @@ public class Agent extends AIEntity {
     public Stack<GraphNode> movePath;
     public Pos finalDest;
     public boolean isPrior = false;
+    public int pathLength;
 
     public Agent() {
 
@@ -38,8 +39,8 @@ public class Agent extends AIEntity {
         }
         game.SetAgentIdState(randId, true);
         this.id = String.format("agent%d", randId);
-        System.out.println("new agent: " + game.GetAgent(this.id));
         game.AddAgent(this.id, this);
+        System.out.println("new agent: " + game.GetAgent(this.id));
 
         CalculateRandomPath();
         App.SendText(String.format("spawn agent %s %d %d %d %d", this.id, x, y, finalDest.x, finalDest.y));
@@ -128,6 +129,7 @@ public class Agent extends AIEntity {
                     }
 
                     movePath = path;
+                    pathLength = movePath.size();
                     return path;
                 }
                 open.add(new GraphNode(i.x, i.y, g, h, curNode));
@@ -174,6 +176,8 @@ public class Agent extends AIEntity {
 
     class MoveSchedule extends TimerTask {
 
+        private List<Pos> excludeds = new ArrayList<Pos>();
+
         public MoveSchedule() {
         }
 
@@ -210,22 +214,27 @@ public class Agent extends AIEntity {
             } catch (Exception e) {
                 nextNode = new GraphNode(finalDest);
             }
+            if (movePath.size() < pathLength - 1) {
+                excludeds = new ArrayList<Pos>();
+            }
 
             game.SetCellState(curSrc.x, curSrc.y, null);
             curSrc = moveNode.pos;
             game.SetCellState(curSrc.x, curSrc.y, id);
             curDest = nextNode.pos;
-            System.out.println(nextNode);
             String curDestState = game.GetCellState(curDest.x, curDest.y);
             // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
             // curDestState));
+            System.out.println(String.format("agent %s %d %d %s", id, curDest.x, curDest.y, curDestState));
 
             if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
 
                 // movePath.push(moveNode);
-                if (curDestState.contains("atagv")) {
-                    Pos[] excludeds = { curDest };
-                    movePath = CalculatePath(curSrc, finalDest, excludeds);
+                if (curDestState.contains("agv")) {
+                    isPrior = false;
+                    // Pos[] excludeds = GetExcludeds(curDest);
+                    excludeds.add(curDest);
+                    movePath = CalculatePath(curSrc, finalDest, excludeds.toArray(new Pos[0]));
                     System.out.println(String.format("dest: %d %d", curDest.x, curDest.y));
                     this.run();
                     return;
@@ -235,8 +244,9 @@ public class Agent extends AIEntity {
 
                         if (isObstaclePrior) {
                             isPrior = false;
-                            Pos[] excludeds = { curDest };
-                            movePath = CalculatePath(curSrc, finalDest, excludeds);
+                            // Pos[] excludeds = GetExcludeds(curDest);
+                            excludeds.add(curDest);
+                            movePath = CalculatePath(curSrc, finalDest, excludeds.toArray(new Pos[0]));
                             this.run();
                             return;
                         }
@@ -244,11 +254,14 @@ public class Agent extends AIEntity {
                     if (!isPrior) {
                         if (!isObstaclePrior) {
                             game.GetAgent(curDestState).isPrior = true;
-                            Pos[] excludeds = { curDest };
-                            movePath = CalculatePath(curSrc, finalDest, excludeds);
-                            this.run();
-                            return;
+
                         }
+                        // Pos[] excludeds = GetExcludeds(curDest);
+                        excludeds.add(curDest);
+                        movePath = CalculatePath(curSrc, finalDest, excludeds.toArray(new Pos[0]));
+                        this.run();
+                        return;
+
                     }
 
                 }
@@ -263,6 +276,36 @@ public class Agent extends AIEntity {
 
         }
 
+        public Pos[] GetExcludeds(Pos base) {
+            Game game = Game.getInstance();
+            String state = "";
+            Pos curPos = new Pos();
+            List<Pos> res = new ArrayList<Pos>();
+            res.add(base);
+
+            curPos = new Pos(base.x, base.y + 1);
+            state = game.GetCellState(curPos);
+            if (state != null && !state.equals("") && !state.equals(id))
+                res.add(curPos);
+
+            curPos = new Pos(base.x, base.y - 1);
+            state = game.GetCellState(curPos);
+            if (state != null && !state.equals("") && !state.equals(id))
+                res.add(curPos);
+
+            curPos = new Pos(base.x + 1, base.y);
+            state = game.GetCellState(curPos);
+            if (state != null && !state.equals("") && !state.equals(id))
+                res.add(curPos);
+
+            curPos = new Pos(base.x - 1, base.y);
+            state = game.GetCellState(curPos);
+            if (state != null && !state.equals("") && !state.equals(id))
+                res.add(curPos);
+
+            return res.toArray(new Pos[0]);
+
+        }
     }
 
 }

@@ -60,15 +60,13 @@ public class AutoAgv extends AIEntity {
         Pos[] pathPos = Game.getInstance().pathPos;
         int randomIndex = (int) Math.floor(Math.random() * pathPos.length);
 
-        System.out.println("cal random");
-
         while (!Utils.ValidDest(this.curSrc, pathPos[randomIndex])) {
             randomIndex = (int) Math.floor(Math.random() * pathPos.length);
         }
         this.finalDest = pathPos[randomIndex];
 
-        System.out.println(String.format("finalDest %d %d", finalDest.x,
-                finalDest.y));
+        // System.out.println(String.format("finalDest %d %d", finalDest.x,
+        // finalDest.y));
         this.movePath = CalculatePath(curSrc, finalDest);
         if (movePath != null) {
             this.curDest = movePath.peek().pos;
@@ -186,6 +184,7 @@ public class AutoAgv extends AIEntity {
             // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
             // curDestState));
             String msg = String.format("atagv %s pos %d %d %d %d", id, curSrc.x, curSrc.y, curDest.x, curDest.y);
+            System.out.println(msg);
             App.SendText(msg);
 
             if (curDestState != null && !curDestState.equals("") && !curDestState.equals(id)) {
