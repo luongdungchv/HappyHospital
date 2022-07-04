@@ -1,0 +1,26 @@
+{
+    "agv": {
+        "srcX": 1,
+        "srcY": 13,
+        "destX": 4,
+        "destY": 2
+    },
+    "agents": [
+        {
+            "x": 19,
+            "y": 19,
+            "destX": 9,
+            "destY": 2,
+            "id": "agent1"
+        }
+    ],
+    "autoAgvs": [
+        {
+            "x": 11,
+            "y": 11,
+            "id": "atagv1",
+            "destX": 20,
+            "destY": 2
+        }
+    ]
+}

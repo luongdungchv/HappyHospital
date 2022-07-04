@@ -30,8 +30,8 @@ public class Main {
         // PosFloat one = test.ToOne();
         // System.out.println(String.format("%f, %f", one.x, one.y));
         runServer();
-        double a = 4.000000;
-        System.out.println(Double.toString(a));
+        SaveModel save = Utils.DeserializeJsonFile("save (7).json", SaveModel.class);
+        System.out.println("testt");
 
         // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
         // Game game = Game.createInstance();

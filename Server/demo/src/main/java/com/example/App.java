@@ -13,6 +13,7 @@ import java.util.TimerTask;
 import java.nio.file.*;
 import com.example.Classes.*;
 import com.example.Classes.Models.Model;
+import com.example.Classes.Models.SaveModel;
 import com.fasterxml.jackson.databind.*;
 
 class MessageSchedule extends TimerTask {
@@ -69,8 +70,9 @@ public class App {
 
     @OnOpen
     public void onOpen(Session session) throws IOException {
+        SaveModel testData = Utils.DeserializeJsonFile("save (8).json", SaveModel.class);
         socketSession = session;
-        Game game = Game.createInstance();
+        Game game = Game.createInstance(testData);
         game.socketSession = session;
         System.out.println("Session started");
 
@@ -80,6 +82,17 @@ public class App {
     public void onMessage(String txt, Session session) throws IOException {
         double speed = 0.1000000000000;
         Game game = Game.getInstance();
+
+        try {
+            SaveModel saveData = Utils.DeserializeJsonString(txt, SaveModel.class);
+            Game.End();
+            game = Game.createInstance(saveData);
+            game.socketSession = session;
+
+        } catch (Exception e) {
+
+        }
+
         System.out.println(txt);
         String[] cmdList = txt.split(" ");
 

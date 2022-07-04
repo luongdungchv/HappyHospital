@@ -67,6 +67,10 @@ class AgvServer extends DynamicEntity {
       );
    }
    update() {
+      if (!this.active) {
+         delete this;
+         return;
+      }
       this.setVelocity(0);
 
       let t, l, b, r;

@@ -21,7 +21,7 @@ public class Utils {
         return true;
     }
 
-    public static <T extends Model> T DeserializeJson(String jsonFilename, Class<T> type)
+    public static <T extends Model> T DeserializeJsonFile(String jsonFilename, Class<T> type)
             throws JsonMappingException, JsonProcessingException {
         final Class<T> classType = type;
 
@@ -33,6 +33,17 @@ public class Utils {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        T model = mapper.readValue(json, classType);
+        return model;
+    }
+
+    public static <T extends Model> T DeserializeJsonString(String jsonString, Class<T> type)
+            throws JsonMappingException, JsonProcessingException {
+        final Class<T> classType = type;
+
+        String json = jsonString;
 
         ObjectMapper mapper = new ObjectMapper();
         T model = mapper.readValue(json, classType);

@@ -22,8 +22,29 @@ public class Agv extends Entity {
         String msg = String.format("agv %f %f", curPos.x, curPos.y);
         System.out.println("msg");
 
+        ChangeDest();
+        // finalDest = new Pos(4, 2);
+        String spawnMsg = String.format("spawn agv %d %d %d %d", curSrc.x, curSrc.y, finalDest.x, finalDest.y);
+
+        App.SendText(spawnMsg);
+
+        TimerTask moveTask = new MoveSchedule();
+        Timer timer = new Timer();
+        timer.schedule(moveTask, 0, 50);
+    }
+
+    public Agv(int x, int y, int x1, int y1) {
+        this.curSrc = new Pos(x, y);
+        this.curDest = curSrc;
+        this.curPos = new PosFloat(this.curSrc);
+        this.velocity = new PosFloat(0, 0);
+        this.game = Game.getInstance();
+
+        String msg = String.format("agv %f %f", curPos.x, curPos.y);
+        System.out.println("msg");
+
         // ChangeDest();
-        finalDest = new Pos(4, 2);
+        finalDest = new Pos(x1, y1);
         String spawnMsg = String.format("spawn agv %d %d %d %d", curSrc.x, curSrc.y, finalDest.x, finalDest.y);
 
         App.SendText(spawnMsg);

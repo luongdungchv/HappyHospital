@@ -6,9 +6,12 @@ import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.example.Classes.*;
+import com.example.Classes.Models.AIModel;
 import com.example.Classes.Models.AdjacentListModel;
+import com.example.Classes.Models.AgvModel;
 import com.example.Classes.Models.PosModel;
 import com.example.Classes.Models.PosPropsModel;
+import com.example.Classes.Models.SaveModel;
 
 import javax.websocket.Session;
 
@@ -79,19 +82,13 @@ public class Game {
         instance = null;
     }
 
-    public static Game createInstance() throws IOException {
-
-        instance = new Game();
-        // instance.socketSession = socketSession;
-
-        // Generate adjacent list
-
-        instance.adjacentList = Utils.DeserializeJson("adjacent-list.json", AdjacentListModel.class).pos;
+    private static void ConfigureInstance(Game instance) throws IOException {
+        instance.adjacentList = Utils.DeserializeJsonFile("adjacent-list.json", AdjacentListModel.class).pos;
         // Generate path pos
-        instance.pathPos = Utils.DeserializeJson("pathpos.json", PosModel.class).pos;
-        instance.groundPos = Utils.DeserializeJson("groundPos.json", PosModel.class).pos;
-        instance.doorPos = Utils.DeserializeJson("doorPos.json", PosModel.class).pos;
-        instance.pathPosProps = Utils.DeserializeJson("save (1).json", PosPropsModel.class).props;
+        instance.pathPos = Utils.DeserializeJsonFile("pathpos.json", PosModel.class).pos;
+        instance.groundPos = Utils.DeserializeJsonFile("groundPos.json", PosModel.class).pos;
+        instance.doorPos = Utils.DeserializeJsonFile("doorPos.json", PosModel.class).pos;
+        instance.pathPosProps = Utils.DeserializeJsonFile("save (1).json", PosPropsModel.class).props;
 
         for (int i = 0; i < 10; i++) {
             instance.atagvIds.put(i, false);
@@ -102,10 +99,46 @@ public class Game {
         for (Pos i : instance.groundPos) {
             instance.SetMap(i.x, i.y, true);
         }
+    }
+
+    public static Game createInstance() throws IOException {
+
+        instance = new Game();
+        // instance.socketSession = socketSession;
+
+        // Generate adjacent list
+        ConfigureInstance(instance);
+
         instance.SchduleAtagvSpawn();
         instance.ScheduleAgentSpawn();
         // instance.SetCellState(4, 16, "atagv1");
         instance.agv = new Agv(1, 13);
+        System.out.println("asasdf");
+        return instance;
+
+    }
+
+    public static Game createInstance(SaveModel saveData) throws IOException {
+
+        instance = new Game();
+        // instance.socketSession = socketSession;
+        AgvModel agvData = saveData.agv;
+        AIModel[] agentsData = saveData.agents;
+        AIModel[] atagvsData = saveData.autoAgvs;
+        // Generate adjacent list
+        ConfigureInstance(instance);
+
+        for (AIModel data : agentsData) {
+            Agent agent = new Agent(data.x, data.y, data.destX, data.destY, data.id);
+        }
+        for (AIModel data : atagvsData) {
+            AutoAgv agent = new AutoAgv(data.x, data.y, data.destX, data.destY, data.id);
+        }
+
+        instance.SchduleAtagvSpawn();
+        instance.ScheduleAgentSpawn();
+        // instance.SetCellState(4, 16, "atagv1");
+        instance.agv = new Agv(agvData.srcX, agvData.srcY, agvData.destX, agvData.destY);
         System.out.println("asasdf");
         return instance;
 
@@ -189,21 +222,21 @@ public class Game {
 
     public void SchduleAtagvSpawn() {
         System.out.println("spawn start");
-        // Timer timer = new Timer();
-        // TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
-        // timer.schedule(spawnAtagv, 0, 5000);
+        Timer timer = new Timer();
+        TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
+        timer.schedule(spawnAtagv, 0, 5000);
         // SetCellState(4, 20, "aagv");
-        AutoAgv newAtagv = new AutoAgv(9, 2, 20, 2, "atagv1");
+        // AutoAgv newAtagv = new AutoAgv(9, 2, 20, 2, "atagv1");
 
         // Agent newAtagv = new Agent(9, 2, 20, 2, "agent2");
         // AutoAgv newAtagv = new AutoAgv(1, 14);
     }
 
     public void ScheduleAgentSpawn() {
-        Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
-        // Timer timer = new Timer();
-        // TimerTask spawanAgent = new AgentSpawnSchedule();
-        // timer.schedule(spawanAgent, 0, 5000);
+        // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
+        Timer timer = new Timer();
+        TimerTask spawanAgent = new AgentSpawnSchedule();
+        timer.schedule(spawanAgent, 0, 5000);
     }
 
     class AgentSpawnSchedule extends TimerTask {

@@ -26,7 +26,7 @@ public class AutoAgv extends AIEntity {
         // System.out.println("atagv created " + this.id);
         Game.getInstance().AddAtAgv(this.id, this);
         CalculateRandomPath();
-        App.SendText(String.format("spawn atagv %s %d %d", this.id, this.finalDest.x, this.finalDest.y));
+        App.SendText(String.format("spawn atagv %s %d %d %d %d", this.id, this.finalDest.x, this.finalDest.y, x, y));
 
         timer = new Timer();
         TimerTask task = new MoveSchedule();
@@ -38,11 +38,18 @@ public class AutoAgv extends AIEntity {
     public AutoAgv(int x, int y, int x1, int y1, String id) {
         this.curSrc = new Pos(x, y);
         this.movePath = CalculatePath(curSrc, new Pos(x1, y1));
-        this.curDest = movePath.peek().pos;
-        this.id = id;
-        this.finalDest = new Pos(x1, y1);
 
-        App.SendText(String.format("spawn atagv %s %d %d", this.id, this.finalDest.x, this.finalDest.y));
+        this.id = id;
+        String[] split = id.split("v");
+        Game.getInstance().SetAtAgvIdState(Integer.parseInt(split[1]), true);
+        Game.getInstance().AddAtAgv(this.id, this);
+        this.finalDest = new Pos(x1, y1);
+        if (this.movePath != null)
+            this.curDest = movePath.peek().pos;
+        else
+            CalculateRandomPath();
+
+        App.SendText(String.format("spawn atagv %s %d %d %d %d", this.id, this.finalDest.x, this.finalDest.y, x, y));
 
         timer = new Timer();
         TimerTask task = new MoveSchedule();

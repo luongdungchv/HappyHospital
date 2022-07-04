@@ -246,48 +246,46 @@ export default class HelloWorldScene extends Phaser.Scene {
          agv: {},
          agents: [],
          autoAgvs: [],
-         maxAgents: 5,
-         spawnProb: 0.3,
       };
-      console.log("saving");
+
       data.agv = {
-         start: {
-            x: Math.round(this.agv.x / 32),
-            y: Math.round(this.agv.y / 32),
-         },
-         dest: {
-            x: this.agv.destX,
-            y: this.agv.destY,
-         },
+         srcX: Math.round(this.agv.x / 32),
+         srcY: Math.round(this.agv.y / 32),
+
+         destX: this.agv.destX,
+         destY: this.agv.destY,
       };
       console.log(this.agents.length);
       let c = 0;
-      for (let j = 0; j < this.agents.length; j++) {
+      for (let j = 0; j < this.agentsServer.length; j++) {
          //console.log("loop");
-         let i = this.agents[j];
+         let i = this.agentsServer[j];
          if (!i) continue;
+         console.log(this.agentsServer);
          if (!i.active) continue;
-         if (!i.curSource) continue;
+         if (!i.curPos) continue;
          data.agents.push({
-            x: i.curSource.x,
-            y: i.curSource.y,
-            index: i.destIndex,
+            x: Math.floor(i.curPos.x),
+            y: Math.floor(i.curPos.y),
+            destX: i.dest.x,
+            destY: i.dest.y,
             id: i.id,
          });
       }
-      for (let i of this.autoAgvs) {
+      for (let i of this.autoAgvsServer) {
          if (!i.active) break;
-         if (!i.curSource) break;
+         if (!i.curPos) break;
          data.autoAgvs.push({
-            x: i.curSource.x,
-            y: i.curSource.y,
-            id: i.index,
-            dest: { x: i.destX, y: i.destY },
+            x: Math.floor(i.curPos.x),
+            y: Math.floor(i.curPos.y),
+            id: i.id,
+            destX: i.dest.x,
+            destY: i.dest.y,
          });
-         console.log(i.curSource);
+         //console.log(i.curPos);
       }
-      data.maxAgents = this.maxAgents;
-      data.spawnProb = this.prob;
+      // data.maxAgents = this.maxAgents;
+      // data.spawnProb = this.prob;
 
       let arr = [[]];
       for (let i of this.pathLayer.layer.data) {
@@ -299,7 +297,7 @@ export default class HelloWorldScene extends Phaser.Scene {
          arr[j.x][j.y] = j.properties.direction || "";
       }
 
-      let jsonData = JSON.stringify({ pos: arr });
+      let jsonData = JSON.stringify(data);
       console.log(jsonData);
       const e = document.createElement("a");
       e.setAttribute("href", "data:text/plain;charset=utf-8," + jsonData);
@@ -333,42 +331,20 @@ export default class HelloWorldScene extends Phaser.Scene {
 
                      des.innerHTML = "";
 
-                     this.agents.forEach((i) => i.eliminate());
-                     this.agents = [];
-                     this.autoAgvs.forEach((i) => i.eliminate());
-                     this.autoAgvs = [];
+                     this.agentsServer.forEach((i) => i.eliminate());
+                     this.agentsServer = [];
+                     this.autoAgvsServer.forEach((i) => i.eliminate());
+                     this.autoAgvsServer = [];
                      this.agv.eliminate();
                      this.agentIds = {};
                      this.autoAgvIds = {};
-                     this.agv = new Agv(
-                        this,
-                        data.agv?.start?.x || 1,
-                        data.agv?.start?.y || 14,
 
-                        this.pathLayer,
-                        data.agv?.dest || { x: 0, y: 0 }
-                     );
+                     this.socket.send(reader?.result);
 
-                     this.groundPos.forEach((i) => {
-                        let [x, y] = [i.x, i.y];
-                        if (!this.busyGrid[x]) this.busyGrid[x] = [];
-                        this.busyGrid[x][y] = null;
-                     });
-
-                     data.agents.forEach((i) => {
-                        this.agents.push(
-                           new Agent(this, i.x, i.y, i.index, i.id)
-                        );
-                     });
-                     data.autoAgvs.forEach((i) => {
-                        let item = new AutoAgv(this, i.x, i.y, i.id, i.dest);
-                        this.autoAgvs.push(item);
-                     });
-
-                     this.socket.send(`aa${this.agents.length}`);
-                     console.log(data.maxAgents);
-                     data.maxAgents && this.socket.send(`ma${data.maxAgents}`);
-                     data.spawnProb && this.socket.send(`pr${data.spawnProb}`);
+                     // this.socket.send(`aa${this.agents.length}`);
+                     // console.log(data.maxAgents);
+                     // data.maxAgents && this.socket.send(`ma${data.maxAgents}`);
+                     // data.spawnProb && this.socket.send(`pr${data.spawnProb}`);
                   }
                };
                reader.readAsText(input.files[0]);
@@ -433,7 +409,17 @@ export default class HelloWorldScene extends Phaser.Scene {
                let destX = parseInt(cmdList[3]);
                let destY = parseInt(cmdList[4]);
                let dest = { x: destX, y: destY };
-               let atagv = new AutoAgvServer(this, 1, 14, cmdList[2], dest);
+               let src = {
+                  x: parseInt(cmdList[5]),
+                  y: parseInt(cmdList[6]),
+               };
+               let atagv = new AutoAgvServer(
+                  this,
+                  src.x,
+                  src.y,
+                  cmdList[2],
+                  dest
+               );
             } else if (cmdList[1] == "agent") {
                let x = parseInt(cmdList[3]);
                let y = parseInt(cmdList[4]);
