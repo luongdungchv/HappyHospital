@@ -3,11 +3,9 @@ package com.example.Classes;
 import com.example.App;
 import com.example.Game;
 import java.util.List;
-import java.util.Queue;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class Agent extends AIEntity {

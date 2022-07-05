@@ -1,6 +1,5 @@
 package com.example.Classes;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import com.example.*;
@@ -19,9 +18,6 @@ public class Agv extends Entity {
         this.velocity = new PosFloat(0, 0);
         this.game = Game.getInstance();
 
-        String msg = String.format("agv %f %f", curPos.x, curPos.y);
-        System.out.println("msg");
-
         ChangeDest();
         // finalDest = new Pos(4, 2);
         String spawnMsg = String.format("spawn agv %d %d %d %d", curSrc.x, curSrc.y, finalDest.x, finalDest.y);
@@ -39,9 +35,6 @@ public class Agv extends Entity {
         this.curPos = new PosFloat(this.curSrc);
         this.velocity = new PosFloat(0, 0);
         this.game = Game.getInstance();
-
-        String msg = String.format("agv %f %f", curPos.x, curPos.y);
-        System.out.println("msg");
 
         // ChangeDest();
         finalDest = new Pos(x1, y1);
@@ -116,7 +109,6 @@ public class Agv extends Entity {
                 try {
                     Thread.sleep(4000);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 ChangeDest();
@@ -124,8 +116,6 @@ public class Agv extends Entity {
             }
 
             if (curSrcProp.equals("") && curDestProp.equals("")) {
-
-                PosFloat test = new PosFloat(0, velocity.y).ToOne();
 
                 if (!pendingChangeDir.IsZero()) {
                     curPos = PosFloat.Add(curPos, pendingChangeDir);

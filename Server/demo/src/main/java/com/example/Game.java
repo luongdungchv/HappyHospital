@@ -1,7 +1,5 @@
 package com.example;
 
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -15,12 +13,7 @@ import com.example.Classes.Models.SaveModel;
 
 import javax.websocket.Session;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.*;
 
 public class Game {
     private static Game instance;
@@ -245,11 +238,6 @@ public class Game {
 
     class AgentSpawnSchedule extends TimerTask {
         public void run() {
-            // int randomId = (int) Math.floor(Math.random() * 100);
-            // int randomPosIndex = (int) Math.floor(Math.random() * doorPos.size());
-            // Pos randomPos = doorPos.get(randomPosIndex);
-            // Agent newAgent = new Agent(randomPos.x, randomPos.y);
-            // AddEntity("agent " + String.valueOf(randomId), newAgent);
 
             if (agents.size() >= maxAgents) {
                 return;

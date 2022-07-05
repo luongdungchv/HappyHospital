@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.io.IOException;
 import java.util.ArrayList;
 
 public class AutoAgv extends AIEntity {

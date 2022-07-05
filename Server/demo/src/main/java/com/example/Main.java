@@ -7,13 +7,7 @@ import java.io.IOException;
 import com.example.Classes.*;
 import com.example.Classes.Models.*;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.*;
-
 import java.io.InputStreamReader;
-import java.nio.file.*;
-import java.util.List;
-import java.util.Stack;
 
 public class Main {
     public static void main(String arg[]) throws IOException {
@@ -30,8 +24,6 @@ public class Main {
         // PosFloat one = test.ToOne();
         // System.out.println(String.format("%f, %f", one.x, one.y));
         runServer();
-        SaveModel save = Utils.DeserializeJsonFile("save (7).json", SaveModel.class);
-        System.out.println("testt");
 
         // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
         // Game game = Game.createInstance();
