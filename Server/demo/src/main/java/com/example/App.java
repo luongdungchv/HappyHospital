@@ -66,7 +66,6 @@ public class App {
 
     @OnOpen
     public void onOpen(Session session) throws IOException {
-        // SaveModel testData = Utils.DeserializeJsonFile("save (8).json",
         // SaveModel.class);
         socketSession = session;
         Game game = Game.createInstance();
