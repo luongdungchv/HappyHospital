@@ -12,29 +12,7 @@ import java.io.InputStreamReader;
 public class Main {
     public static void main(String arg[]) throws IOException {
 
-        // Agent a = new Agent(9, 2);
-        // System.out.println(game.GetMap(0, 0));
-        // System.out.println(game.GetCellState(0, 0));
-        // Entity e = new AutoAgv(49, 13, 45, 2, "2");
-        // game.AddEntity("1", e);
-        // String[][] test = Utils.DeserializeJson("save (1).json",
-        // PosPropsModel.class).props;
-        // model.PrintList();
-        // PosFloat test = new PosFloat(0.1, 0);
-        // PosFloat one = test.ToOne();
-        // System.out.println(String.format("%f, %f", one.x, one.y));
         runServer();
-
-        // Agent newAgent = new Agent(20, 2, 9, 2, "agent1");
-        // Game game = Game.createInstance();
-        // Agent a = new Agent();
-        // Pos[] excludeds = { new Pos(19, 2) };
-        // Stack<GraphNode> test = a.CalculatePath(new Pos(20, 2), new Pos(9, 2),
-        // excludeds);
-        // System.out.println(test);
-        // List<Pos> list = Agent.GetAdjacentCells(51, 27);
-        // System.out.println("sdf");
-        // System.out.println(Utils.ValidDest(new Pos(0, 0), new Pos(4, 13)));
 
     }
 

@@ -81,7 +81,7 @@ public class Game {
         instance.pathPos = Utils.DeserializeJsonFile("pathpos.json", PosModel.class).pos;
         instance.groundPos = Utils.DeserializeJsonFile("groundPos.json", PosModel.class).pos;
         instance.doorPos = Utils.DeserializeJsonFile("doorPos.json", PosModel.class).pos;
-        instance.pathPosProps = Utils.DeserializeJsonFile("save (1).json", PosPropsModel.class).props;
+        instance.pathPosProps = Utils.DeserializeJsonFile("pathPosProps.json", PosPropsModel.class).props;
 
         for (int i = 0; i < 10; i++) {
             instance.atagvIds.put(i, false);
@@ -219,7 +219,7 @@ public class Game {
         TimerTask spawnAtagv = new AutoAgvSpawnSchedule();
         timer.schedule(spawnAtagv, 0, 5000);
         // SetCellState(4, 20, "aagv");
-        // AutoAgv newAtagv = new AutoAgv(9, 2, 20, 2, "atagv1");
+        // AutoAgv newAtagv = new AutoAgv(47, 11, 20, 2, "atagv1");
 
         // Agent newAtagv = new Agent(9, 2, 20, 2, "agent2");
         // AutoAgv newAtagv = new AutoAgv(1, 14);

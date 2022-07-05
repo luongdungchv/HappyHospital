@@ -137,6 +137,10 @@ public class AutoAgv extends AIEntity {
         boolean countdownComplete = false;
         boolean isCountingDown = false;
 
+        public MoveSchedule() {
+
+        }
+
         public void run() {
             GraphNode nextNode = null;
             GraphNode moveNode = null;
@@ -154,17 +158,24 @@ public class AutoAgv extends AIEntity {
                 CalculateRandomPath();
 
                 if (movePath == null || movePath.size() == 0) {
-                    System.out.println("movePath null");
-                    game.SetCellState(curSrc.x, curSrc.y, null);
-                    game.SetCellState(curDest.x, curDest.y, null);
-                    game.SetAtAgvIdState(GetIdNum(), false);
-                    game.RemoveAtAgv(id);
-                    App.SendText(String.format("atagv %s el", id));
+                    movePath = CalculatePath(curSrc, new Pos(50, 13));
+                    System.out.println(movePath.size());
+                    App.SendText(String.format("atagv %s dest %d %d", id, 50, 13));
 
-                    this.cancel();
                 } else {
                     App.SendText(String.format("atagv %s dest %d %d", id, finalDest.x, finalDest.y));
                 }
+                return;
+            }
+            if (moveNode.pos.x == 50) {
+                System.out.println("movePath null");
+                game.SetCellState(curSrc.x, curSrc.y, null);
+                game.SetCellState(curDest.x, curDest.y, null);
+                game.SetAtAgvIdState(GetIdNum(), false);
+                game.RemoveAtAgv(id);
+                App.SendText(String.format("atagv %s el", id));
+
+                this.cancel();
                 return;
             }
 
@@ -182,7 +193,7 @@ public class AutoAgv extends AIEntity {
             String curDestState = game.GetCellState(curDest.x, curDest.y);
             // System.out.println(String.format("%s %s %s", curSrc.x, curSrc.y,
             // curDestState));
-            String msg = String.format("atagv %s pos %d %d %d %d", id, curSrc.x, curSrc.y, curDest.x, curDest.y);
+            String msg = String.format("atagv %s pos %d %d", id, curSrc.x, curSrc.y);
             System.out.println(msg);
             App.SendText(msg);
 
@@ -194,18 +205,6 @@ public class AutoAgv extends AIEntity {
 
         }
 
-        class CountdownSchedule extends TimerTask {
-            public CountdownSchedule() {
-                isCountingDown = true;
-                countdownComplete = false;
-            }
-
-            public void run() {
-                countdownComplete = true;
-                isCountingDown = false;
-                this.cancel();
-            }
-        }
     }
 
 }
